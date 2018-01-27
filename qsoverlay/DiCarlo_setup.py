@@ -5,18 +5,20 @@ design of DiCarlo qubits, in a format compatable with a circuit builder.
 
 import numpy as np
 from numpy import pi
-from quantumsim.circuit import uniform_noisy_sampler
+from quantumsim.circuit import uniform_noisy_sampler, uniform_sampler
 from .setup_functions import make_1q2q_gateset
-from .gates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure,\
+from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure,\
                    ISwap, ISwapRotation, ResetGate, Had, CNOT
 from .update_functions import update_quasistatic_flux
 
 
-def quick_setup(qubit_list, **kwargs):
+def quick_setup(qubit_list,
+                **kwargs):
     '''
     Quick setup: a function to return a setup that may be immediately
     used to make a qsoverlay builder.
     '''
+
     setup = {
         'gate_dic': get_gate_dic(**kwargs),
         'update_rules': get_update_rules(**kwargs),
@@ -30,32 +32,13 @@ def quick_setup(qubit_list, **kwargs):
     return setup
 
 
-def get_gate_dic(seed,
-                 msmt_time=600,
-                 gate_time_1q=20,
-                 gate_time_2q=40,
-                 reset_time=500,
-                 sampler_type=uniform_noisy_sampler,
-                 readout_error=0.005,
-                 **kwargs):
+def get_gate_dic():
     '''
     Returns the set of gates allowed on DiCarlo qubits.
     Measurement time is something that's still being optimized,
     so this might change.
     (msmt_time = the total time taken for measurement + depletion)
     '''
-
-    # Make sampler and insert into measurement
-    sampler = sampler_type(readout_error=readout_error, seed=seed)
-    Measure['builder_args']['sampler'] = sampler
-
-    # Insert gate times by hand.
-    for gate1q in [RotateX, RotateY, RotateZ]:
-        gate1q['builder_args']['gate_time'] = gate_time_1q
-    for gate2q in [CPhase, CZ, ISwap, ISwapRotation]:
-        gate2q['builder_args']['gate_time'] = gate_time_2q
-    Measure['builder_args']['gate_time'] = msmt_time
-    ResetGate['builder_args']['gate_time'] = reset_time
 
     # Initialise gate set with all allowed gates
     gate_dic = {
@@ -94,8 +77,6 @@ def get_qubit(noise_flag=True,
               p_dec_init=0.005,
               p_exc_fin=0.0,
               p_dec_fin=0.015,
-              msmt_time=600,
-              interval_time=300,
               photons=False,
               alpha0=4,
               kappa=1 / 250,
@@ -103,17 +84,35 @@ def get_qubit(noise_flag=True,
               static_flux_std=None,
               high_frequency=False,
               dephase_var=1e-2/(2*pi),
+              msmt_time=600,
+              interval_time=150,
+              oneq_gate_time=20,
+              CZ_gate_time=40,
+              sampler=None,
+              seed=None,
+              readout_error=0.005,
               **kwargs):
     '''
     The dictionary for parameters of the DiCarlo qubits, with standard
     parameters pre-set.
+
+    This is a bit messy right now, but has the advantage of telling
+    the user which parameters they can set. Not sure how to improve
+    over this.
     '''
+    if sampler is None:
+        if noise_flag is True:
+            sampler = uniform_noisy_sampler(seed=seed,
+                                            readout_error=readout_error)
+        else:
+            sampler = uniform_sampler(seed=seed)
+
     if static_flux_std is not None:
         quasistatic_flux = static_flux_std * np.random.randn()
     else:
         quasistatic_flux = None
 
-    if noise_flag:
+    if noise_flag is True:
 
         param_dic = {
             't1': t1,
@@ -128,13 +127,16 @@ def get_qubit(noise_flag=True,
             'p_dec_fin': p_dec_fin,
             'msmt_time': msmt_time,
             'interval_time': interval_time,
+            'oneq_gate_time': oneq_gate_time,
+            'CZ_gate_time': CZ_gate_time,
+            'iSWAP_gate_time': CZ_gate_time*np.sqrt(2),
             'photons': photons,
             'alpha0': alpha0,
             'kappa': kappa,
             'chi': chi,
             'quasistatic_flux': quasistatic_flux,
-            'high_frequency': high_frequency
-
+            'high_frequency': high_frequency,
+            'sampler': sampler
         }
     else:
 
@@ -151,9 +153,12 @@ def get_qubit(noise_flag=True,
             'p_dec_fin': 0,
             'msmt_time': msmt_time,
             'interval_time': interval_time,
+            'CZ_gate_time': CZ_gate_time,
+            'iSWAP_gate_time': CZ_gate_time*np.sqrt(2),
             'photons': False,
             'quasistatic_flux': None,
-            'high_frequency': False
+            'high_frequency': False,
+            'sampler': sampler
         }
 
     for key, val in kwargs.items():

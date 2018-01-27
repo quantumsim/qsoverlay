@@ -45,17 +45,19 @@ def fill_gateset(qubit_dic, gate_dic, gate_set):
         q0 = gate_instance[1]
 
         # Find the parameters to add to the gate set
-        gbargs = gate_dic[gate]['builder_args']
-        gcargs = gate_dic[gate]['circuit_args']
-        qcargs = {kw: qubit_dic[q0][kw]
-                  for kw in gate_dic[gate]['qubit_kws']}
+        qbargs = {kw: (qubit_dic[q0][kw_orig]
+                       if type(kw_orig) == str else kw_orig)
+                  for kw, kw_orig in gate_dic[gate]['builder_args'].items()}
+        qcargs = {kw: (qubit_dic[q0][kw_orig]
+                       if type(kw_orig) == str else kw_orig)
+                  for kw, kw_orig in gate_dic[gate]['circuit_args'].items()}
 
         # Update the gate set with the parameters.
         # Reverse order saves any parameters already
         # in the gate set from being overwritten.
         gate_set[gate_instance] = [{
-            **gcargs, **qcargs, **circuit_args}, {
-            **gbargs, **builder_args}]
+            **qcargs, **circuit_args}, {
+            **qbargs, **builder_args}]
 
     return gate_set
 
@@ -82,18 +84,17 @@ def make_1q2q_gateset(qubit_dic, gate_dic):
 
         for gate, gparams in gate_dic.items():
 
-            if 'qubit_kws' in gparams.keys():
-                qcargs = {kw: qparams[kw]
-                          for kw in gparams['qubit_kws']}
-            else:
-                qcargs = {}
+            qcargs = {kw: (qparams[kw_orig] if type(kw_orig) == str
+                           else kw_orig)
+                      for kw, kw_orig in gparams['circuit_args'].items()}
+            qbargs = {kw: (qparams[kw_orig] if type(kw_orig) == str
+                           else kw_orig)
+                      for kw, kw_orig in gparams['builder_args'].items()}
 
             if gparams['num_qubits'] == 1:
 
-                # insert everything
-                gate_set[(gate, qubit)] = \
-                    [{**gparams['circuit_args'], **qcargs},
-                     gparams['builder_args']]
+                # insert everything - no need to copy
+                gate_set[(gate, qubit)] = [qcargs, qbargs]
 
             elif gparams['num_qubits'] == 2:
 
@@ -107,10 +108,9 @@ def make_1q2q_gateset(qubit_dic, gate_dic):
                             and q2params['classical'] is True:
                         continue
 
-                    # Insert everything
-                    gate_set[(gate, qubit, q2)] = \
-                        [{**gparams['circuit_args'], **qcargs},
-                         gparams['builder_args']]
+                    # Insert everything - copy as these dictionaries
+                    # are used multiple times.
+                    gate_set[(gate, qubit, q2)] = [{**qcargs}, {**qbargs}]
             else:
                 raise ValueError('Sorry, I can only do 1' +
                                  ' and 2 qubit gates')
