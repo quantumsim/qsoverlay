@@ -35,4 +35,6 @@ class Controller:
         for op_name in op_list:
             self.op_circuits[op_name].apply_to(self.state)
 
-    
+    def measure(self, ):
+
+        return NotImplemented

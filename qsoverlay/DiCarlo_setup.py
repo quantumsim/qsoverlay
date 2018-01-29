@@ -20,7 +20,7 @@ def quick_setup(qubit_list,
     '''
 
     setup = {
-        'gate_dic': get_gate_dic(**kwargs),
+        'gate_dic': get_gate_dic(),
         'update_rules': get_update_rules(**kwargs),
         'qubit_dic': {
             q: get_qubit(**kwargs) for q in qubit_list
@@ -155,6 +155,7 @@ def get_qubit(noise_flag=True,
             'p_dec_fin': 0,
             'msmt_time': msmt_time,
             'interval_time': interval_time,
+            'oneq_gate_time': oneq_gate_time,
             'CZ_gate_time': CZ_gate_time,
             'ISwap_gate_time': CZ_gate_time*np.sqrt(2),
             'reset_time': reset_time,

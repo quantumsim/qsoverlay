@@ -63,7 +63,7 @@ class Builder:
         # Make qubits
         for qubit, qubit_args in self.qubit_dic.items():
 
-            if 'classical' in qubit_args.items() and\
+            if 'classical' in qubit_args.keys() and\
                     qubit_args['classical'] is True:
                 self.circuit.add_qubit(quantumsim.circuit.ClassicalBit(qubit))
                 continue
