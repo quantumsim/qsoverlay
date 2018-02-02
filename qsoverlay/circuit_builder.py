@@ -85,6 +85,29 @@ class Builder:
             # Initialise the time of the latest gate on each qubit to 0
             self.times[qubit] = 0
 
+    def make_reverse_circuit(self, title='reversed', finalize=True):
+
+        reversed_circuit_list = reversed(self.circuit_list)
+        for gate_desc in reversed_circuit_list:
+            gate_name = gate_desc[0]
+
+            num_qubits = self.gate_dic[gate_name]['num_qubits']
+            user_kws = self.gate_dic[gate_name]['user_kws']
+
+            if 'angle' in user_kws:
+                angle_index = user_kws.index('angle')
+
+            gate_desc[num_qubits + 1 + angle_index] *= -1
+
+        reversed_circuit_builder = Builder(qubit_dic=self.qubit_dic,
+                                           gate_dic=self.gate_dic,
+                                           gate_set=self.gate_set,
+                                           update_rules=self.update_rules)
+        reversed_circuit_builder.add_circuit_list(reversed_circuit_list)
+        reversed_circuit_builder.finalize()
+
+        return reversed_circuit_builder
+
     def add_qasm(self, qasm_generator):
         '''
         Converts a qasm file into a circuit.
@@ -129,8 +152,12 @@ class Builder:
             qubit_list = [line[spaces[len(user_kws)+j]+1:
                           spaces[len(user_kws)+j+1]]
                           for j in range(num_qubits)]
-
-            self.add_gate(gate_name, qubit_list, **kwargs)
+            try:
+                self.add_gate(gate_name, qubit_list, **kwargs)
+            except Exception as inst:
+                print(kwargs['angle'])
+                print(gate_name, qubit_list, kwargs)
+                raise inst
 
     def add_circuit_list(self, circuit_list):
 
@@ -238,7 +265,7 @@ class Builder:
         # My current best idea for adjustable gates - return the
         # gate that could be adjusted to the user.
         if return_flag is not False:
-            return [self.circuit.gates[-int(return_flag)]]
+            return self.circuit.gates[-int(return_flag)]
 
     def update(self, **kwargs):
         for rule in self.update_rules:

@@ -160,7 +160,7 @@ def get_qubit(noise_flag=True,
             'ISwap_gate_time': CZ_gate_time*np.sqrt(2),
             'reset_time': reset_time,
             'photons': False,
-            'quasistatic_flux': None,++
+            'quasistatic_flux': None,
             'high_frequency': False,
             'sampler': sampler
         }
