@@ -16,9 +16,9 @@ git clone https://github.com/brianzi/quantumsim
 git clone https://github.com/obriente/qsoverlay
 cd quantumsim
 git checkout Noisy_twoqubit
-pip install .
+pip install -e .
 cd ../qsoverlay
-pip install .
+pip install -e .
 ```
 
 
