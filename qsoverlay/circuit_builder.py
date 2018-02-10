@@ -61,7 +61,7 @@ class Builder:
         self.times = {}
 
         # Make qubits
-        for qubit, qubit_args in self.qubit_dic.items():
+        for qubit, qubit_args in sorted(self.qubit_dic.items()):
 
             if 'classical' in qubit_args.keys() and\
                     qubit_args['classical'] is True:
@@ -85,26 +85,37 @@ class Builder:
             # Initialise the time of the latest gate on each qubit to 0
             self.times[qubit] = 0
 
-    def make_reverse_circuit(self, title='reversed', finalize=True):
+    def make_reverse_circuit(self, title='reversed',
+                             finalize=True):
 
-        reversed_circuit_list = reversed(self.circuit_list)
-        for gate_desc in reversed_circuit_list:
+        '''
+        Generates a new builder with all gates put in the opposite
+        order and reversed. (assumes every gate without an angle
+        is self-inverse, which is true for CPhase, CNOT, Hadamard
+        gates but not for ISwap gates - this is a bug that needs
+        to be fixed.)
+        '''
+
+        reversed_circuit_list = list(reversed(self.circuit_list))
+        for n, gate_desc in enumerate(reversed_circuit_list):
             gate_name = gate_desc[0]
 
             num_qubits = self.gate_dic[gate_name]['num_qubits']
             user_kws = self.gate_dic[gate_name]['user_kws']
 
             if 'angle' in user_kws:
+                gate_desc = list(gate_desc)
                 angle_index = user_kws.index('angle')
-
-            gate_desc[num_qubits + 1 + angle_index] *= -1
+                gate_desc[num_qubits + 1 + angle_index] *= -1
+                reversed_circuit_list[n] = tuple(gate_desc)
 
         reversed_circuit_builder = Builder(qubit_dic=self.qubit_dic,
                                            gate_dic=self.gate_dic,
                                            gate_set=self.gate_set,
                                            update_rules=self.update_rules)
         reversed_circuit_builder.add_circuit_list(reversed_circuit_list)
-        reversed_circuit_builder.finalize()
+        if finalize:
+            reversed_circuit_builder.finalize()
 
         return reversed_circuit_builder
 

@@ -18,9 +18,9 @@ pauli_dic = {1: s0, 'X': sx, 'Y': sy, 'Z': sz}
 class Controller:
     def __init__(self,
                  qubits,
-                 mbits,
                  circuits,
-                 adjust_gates):
+                 adjust_gates={},
+                 mbits=[]):
 
         '''
         qubits: list of qubits in the experiment
@@ -68,13 +68,15 @@ class Controller:
 
         # Record is a reserved keyword to copy the output
         # from a set of classical bits to return to the user.
-        if circuit[0] == 'record':
-            output = []
-            for mbit in circuit[1:]:
-                output.append(self.state.classical[mbit])
-            return output
 
-        elif type(circuit) is list or type(circuit) is tuple:
+        if type(circuit) is list or type(circuit) is tuple:
+
+            if circuit[0] == 'record':
+                output = []
+                for mbit in circuit[1:]:
+                    output.append(self.state.classical[mbit])
+                return output
+
             op_name = circuit[0]
             if type(op_name) == int:
                 return self.apply_circuit(circuit[1])
@@ -82,7 +84,6 @@ class Controller:
             else:
                 for gate, param in zip(
                         self.adjust_gates[op_name], circuit[1:]):
-
                     gate.adjust(param)
                 self.circuits[op_name].apply_to(self.state,
                                                 apply_all_pending=False)
@@ -94,6 +95,9 @@ class Controller:
                                             apply_all_pending=False)
 
             return None
+
+    def __lt__(self, circuit):
+        self.apply_circuit(circuit)
 
     def apply_circuit_list(self, circuit_list):
         '''
@@ -152,6 +156,9 @@ class Controller:
                 op = np.kron(pauli_dic[label], op)
 
             result = mult * np.trace(op @ dm)
+
+            assert np.imag(result) < 1e-9
+            result = float(np.real(result))
 
             if num_repetitions is not None:
                 bernoulli_rv = (result + 1)/2
