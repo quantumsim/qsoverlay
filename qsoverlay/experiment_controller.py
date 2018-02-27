@@ -20,6 +20,7 @@ class Controller:
                  qubits,
                  circuits,
                  adjust_gates={},
+                 angle_convert_matrices={},
                  mbits=[]):
 
         '''
@@ -42,6 +43,7 @@ class Controller:
             raise ValueError('Circuits must not use integers for labels')
         self.circuits = circuits
         self.adjust_gates = adjust_gates
+        self.angle_convert_matrices = angle_convert_matrices
 
         self.make_state()
 
@@ -82,8 +84,13 @@ class Controller:
                 return self.apply_circuit(circuit[1])
 
             else:
+                if op_name in self.angle_convert_matrices:
+                    angles = self.angle_convert_matrices[op_name] @ circuit[1:]
+                else:
+                    angles = circuit[1:]
+
                 for gate, param in zip(
-                        self.adjust_gates[op_name], circuit[1:]):
+                        self.adjust_gates[op_name], angles):
                     gate.adjust(param)
                 self.circuits[op_name].apply_to(self.state,
                                                 apply_all_pending=False)
