@@ -47,9 +47,11 @@ class Controller:
 
         self.make_state()
 
-    def make_state(self):
+    def make_state(self, dense_qubits=[]):
 
         self.state = SparseDM(self.qubits+self.mbits)
+        for qubit in dense_qubits:
+            self.state.ensure_dense(qubit)
 
     def apply_circuit(self, circuit):
 
