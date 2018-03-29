@@ -8,7 +8,7 @@ from numpy import pi
 from quantumsim.circuit import uniform_noisy_sampler, uniform_sampler
 from .setup_functions import make_1q2q_gateset
 from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure,\
-                   ISwap, ISwapRotation, ResetGate, Had, CNOT
+                   ISwap, ISwapRotation, ResetGate, Had, CNOT, XGate, YGate, ZGate, CRX
 from .update_functions import update_quasistatic_flux
 
 
@@ -61,7 +61,11 @@ def get_gate_dic():
         'Reset': ResetGate,
         'Had': Had,
         'H': Had,
-        'CNOT': CNOT
+        'CNOT': CNOT,
+        'CRX': CRX,
+        'X': XGate,
+        'Y': YGate,
+        'Z': ZGate
     }
 
     return gate_dic

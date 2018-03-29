@@ -119,7 +119,7 @@ class Builder:
 
         return reversed_circuit_builder
 
-    def add_qasm(self, qasm_generator):
+    def add_qasm(self, qasm_generator, qubits_first=True):
         '''
         Converts a qasm file into a circuit.
         qasm_generator should yield lines of qasm when called.
@@ -132,10 +132,8 @@ class Builder:
         for line in qasm_generator:
 
             # Get positions of spaces in line
-            spaces = [line.find(' ', 0)]
-            while spaces[-1] != -1:
-                spaces.append(line.find(' ', spaces[-1]+1))
-            spaces[-1] = len(line)
+            spaces = [i for i,x in enumerate(line) if x==',' or x==' ']
+            spaces.append(len(line))
 
             # Get the gate name
             gate_name = line[:spaces[0]]
@@ -151,22 +149,41 @@ class Builder:
                               output_bit=output_bit)
                 continue
 
-            # Add arguments from qasm to kwargs
-            kwargs = {}
-            for n, kw in enumerate(user_kws):
-                try:
-                    kwargs[kw] = float(line[spaces[n]+1:spaces[n+1]])
-                except:
-                    kwargs[kw] = line[spaces[n]+1:spaces[n+1]]
+            if qubits_first:
+                # Create qubit list
+                qubit_list = [line[spaces[j]+1:
+                              spaces[j+1]]
+                              for j in range(num_qubits)]
 
-            # Create qubit list
-            qubit_list = [line[spaces[len(user_kws)+j]+1:
-                          spaces[len(user_kws)+j+1]]
-                          for j in range(num_qubits)]
+                # Add arguments from qasm to kwargs
+                kwargs = {}
+                for n, kw in enumerate(user_kws):
+                    try:
+                        kwargs[kw] = float(line[spaces[n+num_qubits]+1:spaces[n+num_qubits+1]])
+                    except:
+                        kwargs[kw] = line[spaces[n+num_qubits]+1:spaces[n+num_qubits+1]]
+
+            else:
+
+                # Add arguments from qasm to kwargs
+                kwargs = {}
+                for n, kw in enumerate(user_kws):
+                    try:
+                        kwargs[kw] = float(line[spaces[n]+1:spaces[n+1]])
+                    except:
+                        kwargs[kw] = line[spaces[n]+1:spaces[n+1]]
+
+                # Create qubit list
+                qubit_list = [line[spaces[len(user_kws)+j]+1:
+                              spaces[len(user_kws)+j+1]]
+                              for j in range(num_qubits)]
             try:
                 self.add_gate(gate_name, qubit_list, **kwargs)
             except Exception as inst:
-                print(kwargs['angle'])
+                try:
+                    print(kwargs['angle'])
+                except:
+                    pass
                 print(gate_name, qubit_list, kwargs)
                 raise inst
 

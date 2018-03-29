@@ -7,6 +7,18 @@ import quantumsim.circuit
 from numpy import pi
 
 
+def X_gate(builder, bit, time):
+    builder < ('RX', bit, -pi)
+
+
+def Y_gate(builder, bit, time):
+    builder < ('RY', bit, -pi)
+
+
+def Z_gate(builder, bit, time):
+    builder < ('RZ', bit, -pi)
+
+
 def had_from_rot(builder, bit, time):
     '''Creates a Hadamard gate from two rotations.'''
     builder < ('RX', bit, -pi)
@@ -17,6 +29,12 @@ def CNOT_from_CZ(builder, bit0, bit1, time):
     '''Creates a CNOT gate from a CZ gate'''
     builder < ('RY', bit1, -pi/2)
     builder < ('CZ', bit0, bit1)
+    builder < ('RY', bit1, pi/2)
+
+def CRX_from_CZ(builder, bit0, bit1, angle, time):
+    '''Creates a CNOT gate from a CZ gate'''
+    builder < ('RY', bit1, -pi/2)
+    builder < ('CPhase', bit0, bit1, angle)
     builder < ('RY', bit1, pi/2)
 
 

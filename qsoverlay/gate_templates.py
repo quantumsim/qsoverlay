@@ -18,8 +18,10 @@ by a dictionary, containing the following information:
 '''
 
 import quantumsim.circuit
-from .gate_functions import insert_CZ, insert_CPhase, insert_measurement,\
-                            had_from_rot, CNOT_from_CZ
+from .gate_functions import (
+    insert_CZ, insert_CPhase, insert_measurement,
+    had_from_rot, CNOT_from_CZ, X_gate, Y_gate, Z_gate,
+    CRX_from_CZ)
 
 
 def make_gate(function, num_qubits, gate_time_label, **kwargs):
@@ -117,6 +119,39 @@ RotateZ = {
     'user_kws': ['angle']
 }
 
+XGate = {
+    'function': X_gate,
+    'num_qubits': 1,
+    'builder_args': {
+        'gate_time': 0  # Composite gate
+    },
+    'circuit_args': {
+    },
+    'user_kws': []
+}
+
+YGate = {
+    'function': Y_gate,
+    'num_qubits': 1,
+    'builder_args': {
+        'gate_time': 0  # Composite gate
+    },
+    'circuit_args': {
+    },
+    'user_kws': []
+}
+
+ZGate = {
+    'function': Z_gate,
+    'num_qubits': 1,
+    'builder_args': {
+        'gate_time': 0  # Composite gate
+    },
+    'circuit_args': {
+    },
+    'user_kws': []
+}
+
 Measure = {
     'function': insert_measurement,
     'num_qubits': 1,
@@ -191,4 +226,15 @@ CNOT = {
     'circuit_args': {},
     'qubit_circuit_kws': [],
     'user_kws': []
+}
+
+CRX = {
+    'function': CRX_from_CZ,
+    'num_qubits': 2,
+    'builder_args': {
+        'gate_time': 0,  # Composite gate
+    },
+    'circuit_args': {},
+    'qubit_circuit_kws': [],
+    'user_kws': ['angle']
 }
