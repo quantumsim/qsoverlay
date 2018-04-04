@@ -203,14 +203,18 @@ class Builder:
         num_qubits = self.gate_dic[gate_name]['num_qubits']
         user_kws = self.gate_dic[gate_name]['user_kws']
 
-        assert len(gate_desc) == len(user_kws) + num_qubits + 1
+        if len(gate_desc) == len(user_kws) + num_qubits + 2:
+            return_flag = gate_desc[-1]
+        else:
+            assert len(gate_desc) == len(user_kws) + num_qubits + 1
+            return_flag = False
 
         qubit_list = gate_desc[1:num_qubits + 1]
 
         kwargs = {kw: arg for kw, arg in
                   zip(user_kws, gate_desc[num_qubits+1:])}
 
-        self.add_gate(gate_name, qubit_list, **kwargs)
+        return self.add_gate(gate_name, qubit_list, return_flag=return_flag, **kwargs)
 
     def add_gate(self, gate_name, qubit_list, return_flag=False, **kwargs):
         '''
