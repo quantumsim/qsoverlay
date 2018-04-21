@@ -53,9 +53,9 @@ class Builder:
             self.update_rules = update_rules
 
         self.save_flag = True
-        self.make_circuit(**kwargs)
+        self.new_circuit(**kwargs)
 
-    def make_circuit(self, circuit_title='New Circuit', **kwargs):
+    def new_circuit(self, circuit_title='New Circuit', **kwargs):
 
         '''
         Make a new circuit within the builder.
