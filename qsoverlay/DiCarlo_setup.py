@@ -10,6 +10,7 @@ from .setup_functions import make_1q2q_gateset
 from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure,\
                    ISwap, ISwapRotation, ResetGate, Had, CNOT, XGate, YGate, ZGate, CRX
 from .update_functions import update_quasistatic_flux
+from .experiment_setup import Setup
 
 
 def quick_setup(qubit_list,
@@ -29,7 +30,7 @@ def quick_setup(qubit_list,
 
     setup['gate_set'] = make_1q2q_gateset(qubit_dic=setup['qubit_dic'],
                                           gate_dic=setup['gate_dic'])
-    return setup
+    return Setup(**setup)
 
 
 def get_gate_dic():

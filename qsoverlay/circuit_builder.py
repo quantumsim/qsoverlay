@@ -14,9 +14,10 @@ import quantumsim.ptm
 class Builder:
 
     def __init__(self,
-                 qubit_dic,
-                 gate_dic,
-                 gate_set,
+                 setup=None,
+                 qubit_dic={},
+                 gate_dic={},
+                 gate_set={},
                  update_rules=[],
                  **kwargs):
         '''
@@ -39,10 +40,16 @@ class Builder:
         kwargs: Can add t1 and t2 via the kwargs instead of
             passing them with the qubit_dic.
         '''
-        self.qubit_dic = qubit_dic
-        self.gate_dic = gate_dic
-        self.gate_set = gate_set
-        self.update_rules = update_rules
+        if setup is not None:
+            self.qubit_dic = setup.qubit_dic
+            self.gate_dic = setup.gate_dic
+            self.gate_set = setup.gate_set
+            self.update_rules = setup.update_rules
+        else:
+            self.qubit_dic = qubit_dic
+            self.gate_dic = gate_dic
+            self.gate_set = gate_set
+            self.update_rules = update_rules
 
         self.make_circuit(**kwargs)
 
