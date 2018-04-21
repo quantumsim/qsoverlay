@@ -178,5 +178,5 @@ def get_qubit(noise_flag=True,
 
 
 def get_update_rules(**kwargs):
-    update_rules = [update_quasistatic_flux]
+    update_rules = ['update_quasistatic_flux']
     return update_rules

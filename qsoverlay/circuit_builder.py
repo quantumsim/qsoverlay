@@ -52,6 +52,7 @@ class Builder:
             self.gate_set = gate_set
             self.update_rules = update_rules
 
+        self.save_flag = True
         self.make_circuit(**kwargs)
 
     def make_circuit(self, circuit_title='New Circuit', **kwargs):
@@ -222,9 +223,13 @@ class Builder:
         kwargs = {kw: arg for kw, arg in
                   zip(user_kws, gate_desc[num_qubits+1:])}
 
-        return self.add_gate(gate_name, qubit_list, return_flag=return_flag, **kwargs)
+        return self.add_gate(gate_name, qubit_list,
+                             return_flag=return_flag, **kwargs)
 
-    def add_gate(self, gate_name, qubit_list, return_flag=False, **kwargs):
+    def add_gate(self, gate_name, 
+                 qubit_list, return_flag=False,
+                 add_to_list=True,
+                 **kwargs):
         '''
         Adds a gate at the appropriate time to our system.
         The gate is always added in the middle of the time period
@@ -281,22 +286,45 @@ class Builder:
 
         # This also ensures that the user has entered all necessary
         # data.
-        user_data = [kwargs[kw]
-                     for kw in self.gate_dic[gate_name]['user_kws']]
-        self.circuit_list.append((gate_name, *qubit_list, *user_data))
+        if self.save_flag:
+            user_data = [kwargs[kw]
+                         for kw in self.gate_dic[gate_name]['user_kws']]
+            if return_flag is not False:
+                self.circuit_list.append((gate_name, *qubit_list, 
+                                          *user_data, return_flag))
+            else:
+                self.circuit_list.append((gate_name, *qubit_list, 
+                                          *user_data))
 
         # Get the gate to add to quantumsim.
         gate = self.gate_dic[gate_name]['function']
 
-        if isinstance(gate, str):
-            self.circuit.add_gate(gate, **kwargs)
+        # The save flag prevents saving multiple gate
+        # definitions when using recursive gates (i.e.
+        # gates that are decomposed and fed back to
+        # the builder). We turn it off, and turn it on
+        # after the execution of this gate if it was 
+        # previously on. As this could cause issues
+        # when errors occur inserting the gate, we make
+        # sure to turn it back afterwards regardless
+        # of success.
+        prev_flag = self.save_flag
+        self.save_flag = False
+        try:
+            if isinstance(gate, str):
+                self.circuit.add_gate(gate, **kwargs)
 
-        elif isinstance(gate, type) and\
-                issubclass(gate, quantumsim.circuit.Gate):
-            self.circuit.add_gate(gate(**kwargs))
+            elif isinstance(gate, type) and\
+                    issubclass(gate, quantumsim.circuit.Gate):
+                self.circuit.add_gate(gate(**kwargs))
 
-        else:
-            gate(builder=self, **kwargs)
+            else:
+                gate(builder=self, **kwargs)
+
+            self.save_flag = prev_flag
+        except e:
+            self.save_flag = prev_flag
+            raise e        
 
         # Update time on qubits after gate is created
         for qubit in qubit_list:
@@ -309,7 +337,7 @@ class Builder:
 
     def update(self, **kwargs):
         for rule in self.update_rules:
-            rule(self, **kwargs)
+            update_function_dic[rule](self, **kwargs)
 
     def finalize(self, topo_order=False, t_add=0):
         '''
