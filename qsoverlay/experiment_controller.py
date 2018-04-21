@@ -7,6 +7,8 @@ for a VQE).
 
 from quantumsim.sparsedm import SparseDM
 import numpy as np
+from .circuit_builder import Builder
+import json
 
 sx = np.array([[0, 1], [1, 0]])
 sy = np.array([[0, -1j], [1j, 0]])
@@ -17,8 +19,11 @@ pauli_dic = {1: s0, 'X': sx, 'Y': sy, 'Z': sz}
 
 class Controller:
     def __init__(self,
-                 qubits,
-                 circuits,
+                 filename=None,
+                 setup=None,
+                 qubits=[],
+                 circuits={},
+                 circuit_lists={},
                  adjust_gates={},
                  angle_convert_matrices={},
                  mbits=[]):
@@ -42,10 +47,46 @@ class Controller:
         if any([type(c) == int for c in circuits]):
             raise ValueError('Circuits must not use integers for labels')
         self.circuits = circuits
+        self.circuit_lists = circuit_lists
         self.adjust_gates = adjust_gates
         self.angle_convert_matrices = angle_convert_matrices
 
+        if filename is not None:
+            
+            self.load(filename, setup)
+
         self.make_state()
+
+    def load(self, filename, setup):
+        
+        with open(filename, 'r') as infile:
+            data = json.load(infile)
+
+        self.mbits = data['mbits']
+        self.qubits = data['qubits']
+
+        b = Builder(setup)
+        for name,cl in data['circuit_lists'].items():
+            b.new_circuit()
+            adjust_gates = b.add_circuit_list(cl)
+            b.finalize()
+            self.circuits[name] = b.circuit
+            self.circuit_lists[name] = cl
+            self.adjust_gates[name] = adjust_gates
+            if name in data['angle_convert_matrices']:
+                self.angle_convert_matrices =\
+                    data['angle_convert_matrices'][name]
+
+    def save(self, filename):
+        data = {
+            'mbits': self.mbits,
+            'qubits': self.qubits,
+            'circuit_lists': self.circuit_lists,
+            'angle_convert_matrices': self.angle_convert_matrices
+        }
+
+        with open(filename, 'w') as outfile:
+            json.dump(data)
 
     def make_state(self, dense_qubits=[]):
 
