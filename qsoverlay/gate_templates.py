@@ -53,9 +53,37 @@ def make_gate(function, num_qubits, gate_time_label, **kwargs):
 
     return {**gate_template, **kwargs}
 
+# A labeled list of all gates to be found below.
+# As this eventually contains functions, I don't know
+# of a better way than hard-coding
+class GateData:
+
+    gate_dic = {
+        'CZ': CZ,
+        'CPhase': CPhase,
+        'RotateX': RotateX,
+        'RotateY': RotateY,
+        'RotateZ': RotateZ,
+        'XGate': XGate,
+        'YGate': YGate,
+        'ZGate': Zgate,
+        'Measure': Measure,
+        'ISwap': ISwap,
+        'ISwapRotation': ISwapRotation,
+        'ResetGate': ResetGate,
+        'Had': Had,
+        'CNOT': CNOT,
+        'CRX': CRX 
+    }
+
+    def __init__(self):
+        pass
+
+
 # Pre-defined gate dictionaries for ease of reading.
 
 CZ = {
+    'name': 'CZ',
     'function': insert_CZ,
     'num_qubits': 2,
     'builder_args': {
@@ -69,6 +97,7 @@ CZ = {
 }
 
 CPhase = {
+    'name': 'CPhase',
     'function': insert_CPhase,
     'num_qubits': 2,
     'builder_args': {
@@ -82,6 +111,7 @@ CPhase = {
 }
 
 RotateX = {
+    'name': 'RotateX',
     'function': quantumsim.circuit.RotateX,
     'num_qubits': 1,
     'builder_args': {
@@ -95,6 +125,7 @@ RotateX = {
 }
 
 RotateY = {
+    'name': 'RotateY',
     'function': quantumsim.circuit.RotateY,
     'num_qubits': 1,
     'builder_args': {
@@ -108,6 +139,7 @@ RotateY = {
 }
 
 RotateZ = {
+    'name': 'RotateY',
     'function': quantumsim.circuit.RotateZ,
     'num_qubits': 1,
     'builder_args': {
@@ -120,6 +152,7 @@ RotateZ = {
 }
 
 XGate = {
+    'name': 'XGate',
     'function': X_gate,
     'num_qubits': 1,
     'builder_args': {
@@ -131,6 +164,7 @@ XGate = {
 }
 
 YGate = {
+    'name': 'YGate',
     'function': Y_gate,
     'num_qubits': 1,
     'builder_args': {
@@ -142,6 +176,7 @@ YGate = {
 }
 
 ZGate = {
+    'name': 'ZGate',
     'function': Z_gate,
     'num_qubits': 1,
     'builder_args': {
@@ -153,6 +188,7 @@ ZGate = {
 }
 
 Measure = {
+    'name': 'Measure',
     'function': insert_measurement,
     'num_qubits': 1,
     'builder_args': {
@@ -172,6 +208,7 @@ Measure = {
 }
 
 ISwap = {
+    'name': 'ISwap',
     'function': quantumsim.circuit.ISwap,
     'num_qubits': 2,
     'builder_args': {
@@ -184,6 +221,7 @@ ISwap = {
 }
 
 ISwapRotation = {
+    'name': 'ISwapRotation',
     'function': quantumsim.circuit.ISwapRotation,
     'num_qubits': 2,
     'builder_args': {
@@ -196,6 +234,7 @@ ISwapRotation = {
 }
 
 ResetGate = {
+    'name': 'ResetGate',
     'function': quantumsim.circuit.ResetGate,
     'num_qubits': 1,
     'builder_args': {
@@ -207,6 +246,7 @@ ResetGate = {
 }
 
 Had = {
+    'name': 'Had',
     'function': had_from_rot,
     'num_qubits': 1,
     'builder_args': {
@@ -218,6 +258,7 @@ Had = {
 }
 
 CNOT = {
+    'name': 'CNOT',
     'function': CNOT_from_CZ,
     'num_qubits': 2,
     'builder_args': {
@@ -229,6 +270,7 @@ CNOT = {
 }
 
 CRX = {
+    'name': 'CRX',
     'function': CRX_from_CZ,
     'num_qubits': 2,
     'builder_args': {
