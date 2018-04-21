@@ -5,7 +5,6 @@ Update functions: functions to update a quantumsim circuit
 from quantumsim import ptm
 import numpy as np
 
-
 def update_quasistatic_flux(builder, **kwargs):
 
     '''
@@ -29,3 +28,7 @@ def update_quasistatic_flux(builder, **kwargs):
                 gate.ptm = new_ptm
         except:
             pass
+
+update_function_dic = {
+    'update_quasistatic_flux': update_quasistatic_flux
+}

@@ -9,6 +9,7 @@ Does not do any compilation; this should possibly be inserted later.
 import numpy as np
 import quantumsim.circuit
 import quantumsim.ptm
+from .update_functions import update_function_dic
 
 
 class Builder:
