@@ -58,26 +58,24 @@ def make_gate(function, num_qubits, gate_time_label, **kwargs):
 # of a better way than hard-coding
 class GateData:
 
-    gate_dic = {
-        'CZ': CZ,
-        'CPhase': CPhase,
-        'RotateX': RotateX,
-        'RotateY': RotateY,
-        'RotateZ': RotateZ,
-        'XGate': XGate,
-        'YGate': YGate,
-        'ZGate': Zgate,
-        'Measure': Measure,
-        'ISwap': ISwap,
-        'ISwapRotation': ISwapRotation,
-        'ResetGate': ResetGate,
-        'Had': Had,
-        'CNOT': CNOT,
-        'CRX': CRX 
-    }
-
     def __init__(self):
-        pass
+        self.gate_dic = {
+            'CZ': CZ,
+            'CPhase': CPhase,
+            'RotateX': RotateX,
+            'RotateY': RotateY,
+            'RotateZ': RotateZ,
+            'XGate': XGate,
+            'YGate': YGate,
+            'ZGate': ZGate,
+            'Measure': Measure,
+            'ISwap': ISwap,
+            'ISwapRotation': ISwapRotation,
+            'ResetGate': ResetGate,
+            'Had': Had,
+            'CNOT': CNOT,
+            'CRX': CRX 
+        }
 
 
 # Pre-defined gate dictionaries for ease of reading.
