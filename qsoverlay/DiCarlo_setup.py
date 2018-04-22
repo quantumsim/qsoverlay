@@ -112,6 +112,7 @@ def get_qubit(noise_flag=True,
             sampler = uniform_noisy_sampler(seed=seed,
                                             readout_error=readout_error)
         else:
+            readout_error = 0
             sampler = uniform_sampler(seed=seed)
 
     if static_flux_std is not None:
@@ -144,7 +145,9 @@ def get_qubit(noise_flag=True,
             'chi': chi,
             'quasistatic_flux': quasistatic_flux,
             'high_frequency': high_frequency,
-            'sampler': sampler
+            'sampler': sampler,
+            'readout_error': readout_error,
+            'seed': seed
         }
     else:
 
@@ -168,7 +171,9 @@ def get_qubit(noise_flag=True,
             'photons': False,
             'quasistatic_flux': None,
             'high_frequency': False,
-            'sampler': sampler
+            'sampler': sampler,
+            'readout_error': 0,
+            'seed': seed
         }
 
     for key, val in kwargs.items():

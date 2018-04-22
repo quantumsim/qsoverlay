@@ -59,7 +59,7 @@ def make_gate(function, num_qubits, gate_time_label, **kwargs):
 class GateData:
 
     def __init__(self):
-        self.gate_dic = {
+        self.available_gate_dic = {
             'CZ': CZ,
             'CPhase': CPhase,
             'RotateX': RotateX,
