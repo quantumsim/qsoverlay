@@ -202,9 +202,12 @@ class Builder:
         Adds a circuit in the list format stored by qsoverlay
         to the builder.
         '''
-
+        adjustable_gates = []
         for gate_desc in circuit_list:
-            self < gate_desc
+            temp_ag = self < gate_desc
+            if temp_ag:
+                adjustable_gates.append(temp_ag)
+        return adjustable_gates
 
     def __lt__(self, gate_desc):
         gate_name = gate_desc[0]
@@ -228,7 +231,6 @@ class Builder:
 
     def add_gate(self, gate_name, 
                  qubit_list, return_flag=False,
-                 add_to_list=True,
                  **kwargs):
         '''
         Adds a gate at the appropriate time to our system.
@@ -322,9 +324,9 @@ class Builder:
                 gate(builder=self, **kwargs)
 
             self.save_flag = prev_flag
-        except e:
+        except:
             self.save_flag = prev_flag
-            raise e        
+            raise
 
         # Update time on qubits after gate is created
         for qubit in qubit_list:

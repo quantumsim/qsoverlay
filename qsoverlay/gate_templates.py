@@ -137,7 +137,7 @@ RotateY = {
 }
 
 RotateZ = {
-    'name': 'RotateY',
+    'name': 'RotateZ',
     'function': quantumsim.circuit.RotateZ,
     'num_qubits': 1,
     'builder_args': {

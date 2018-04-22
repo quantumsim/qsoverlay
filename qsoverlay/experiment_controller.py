@@ -8,6 +8,7 @@ for a VQE).
 from quantumsim.sparsedm import SparseDM
 import numpy as np
 from .circuit_builder import Builder
+from .experiment_setup import Setup
 import json
 
 sx = np.array([[0, 1], [1, 0]])
@@ -62,6 +63,9 @@ class Controller:
         with open(filename, 'r') as infile:
             data = json.load(infile)
 
+        if type(setup) == str:
+            setup = Setup(filename=setup)
+
         self.mbits = data['mbits']
         self.qubits = data['qubits']
 
@@ -86,7 +90,7 @@ class Controller:
         }
 
         with open(filename, 'w') as outfile:
-            json.dump(data)
+            json.dump(data, outfile)
 
     def make_state(self, dense_qubits=[]):
 
