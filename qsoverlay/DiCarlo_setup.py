@@ -18,6 +18,89 @@ def quick_setup(qubit_list,
     '''
     Quick setup: a function to return a setup that may be immediately
     used to make a qsoverlay builder.
+    
+    The setup file accepts the following parameters, defined in
+    arXiv:1703:04136 (or elsewhere):
+
+    noise_flag(=True): turn on or off noise (for debugging)
+    scale(=1): multiplier for t1,t2 (and divides other error rates
+            by same amount)
+    t1(=30000): standard T1 time 
+                (arXiv:1703.04136, App.B.1, eq. B2)
+    t2(=30000): standard T2 time 
+                (arXiv:1703.04136, App.B.1, eq. B3
+                                   and Sec.IV.B.1 eq. 6)
+    dephasing_axis(=1e-4): dephasing of x/y rotations along the
+            axis (arXiv:1703.04136 App.B.3 eq below B5
+                  defined as p_axis)
+    dephasing_angle(=5e-4): dephasing of x/y rotations in the plane
+                (arXiv:1703.04136 App.B.3 eq below B5
+                 defined as p_plane)
+    dephasing(=5e-4): dephasing of z rotations in the plane
+                (arXiv:1703.04136 App.B.3 eq below B5
+                 defined as p_plane)
+    p_exc_init(=0.0): additional excitations between initial
+                dephasing and readout in measurement
+                (separate from T1 effects!)
+                (arXiv:1703.04136 App.B.6 Fig.9
+                 defined as $p_1^\uparrow$)
+    p_dec_init(=0.005): additional relaxation between initial
+                dephasing and readout in measurement
+                (separate from T1 effects!)
+                (arXiv:1703.04136 App.B.6 Fig.9
+                 defined as $p_1^\downarrow$)
+    p_exc_fin(=0.0): additional excitations between readout
+                and end of the measurement period
+                (separate from T1 effects!)
+                (arXiv:1703.04136 App.B.6 Fig.9
+                 defined as $p_2^\uparrow$)
+    p_dec_fin(=0.015): additional relaxation between readout
+                and end of the measurement period
+                (separate from T1 effects!)
+                (arXiv:1703.04136 App.B.6 Fig.9
+                 defined as $p_2^\downarrow$)
+    photons(=False): whether to include dephasing due to
+                resonator photons after measurements.
+                (arXiv:1703.04136 App.B.2)
+    alpha0(=4): photon population at the end of the
+                measurement window
+                (arXiv:1703.04136 App.B.2 equation
+                 bottom-left of page 12.)
+    kappa(=1 / 250): Resonator kappa
+                (arXiv:1703.04136 App.B.2 equation
+                 bottom-left of page 12.)
+    chi(=1.3 * 1e-3): Resonator chi
+                (arXiv:1703.04136 App.B.2 equation
+                 bottom-left of page 12.)
+    static_flux_std(=None): Variance of static flux
+                in the resonator. None=off. 
+                Note - turning this on
+                will require a circuit be repeatedly simulated
+                to acquire good statistics of this noise.
+                (arXiv:1703.04136 App.B.5 final
+                 equation.)
+    high_frequency(=False): Whether this qubit
+                is affected by two-qubit flux noise.
+    dephase_var(=1e-2/(2*pi)): Variance of incoherent version
+                of static flux noise (integrated over
+                all realisations).
+    msmt_time(=600): Total time for measurement (including
+                time for resonator depletion/relaxation).
+    interval_time(=150): Point in the measurement time that
+                the readout occurs at.
+    oneq_gate_time(=20): Time that every single qubit gate
+                takes to perform.
+    CZ_gate_time(=40): time required to perform CZ gate.
+                ISwap gate times are fixed to sqrt(2) times this.
+    reset_time(=500): time required to reset qubits (following
+                arXiv:1801.07689, but currently without any error
+                in the reset itself).
+    sampler(=None): sampler to generate measurement results.
+    seed(=None): seed to generate new sampler if the above is None.
+    readout_error(=0.005): readout error in a sampler if the
+                above is None
+                (\epsilon_{RO}^0=\epsilon_{RO}^1 in
+                 arXiv:1703.04136, App.B.6 Fig.9)
     '''
 
     setup = {
