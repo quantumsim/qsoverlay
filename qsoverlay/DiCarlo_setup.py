@@ -43,22 +43,22 @@ def quick_setup(qubit_list,
                 dephasing and readout in measurement
                 (separate from T1 effects!)
                 (arXiv:1703.04136 App.B.6 Fig.9
-                 defined as $p_1^\uparrow$)
+                 defined as $p_1^uparrow$)
     p_dec_init(=0.005): additional relaxation between initial
                 dephasing and readout in measurement
                 (separate from T1 effects!)
                 (arXiv:1703.04136 App.B.6 Fig.9
-                 defined as $p_1^\downarrow$)
+                 defined as $p_1^downarrow$)
     p_exc_fin(=0.0): additional excitations between readout
                 and end of the measurement period
                 (separate from T1 effects!)
                 (arXiv:1703.04136 App.B.6 Fig.9
-                 defined as $p_2^\uparrow$)
+                 defined as $p_2^uparrow$)
     p_dec_fin(=0.015): additional relaxation between readout
                 and end of the measurement period
                 (separate from T1 effects!)
                 (arXiv:1703.04136 App.B.6 Fig.9
-                 defined as $p_2^\downarrow$)
+                 defined as $p_2^downarrow$)
     photons(=False): whether to include dephasing due to
                 resonator photons after measurements.
                 (arXiv:1703.04136 App.B.2)
@@ -99,7 +99,7 @@ def quick_setup(qubit_list,
     seed(=None): seed to generate new sampler if the above is None.
     readout_error(=0.005): readout error in a sampler if the
                 above is None
-                (\epsilon_{RO}^0=\epsilon_{RO}^1 in
+                (epsilon_{RO}^0=epsilon_{RO}^1 in
                  arXiv:1703.04136, App.B.6 Fig.9)
     '''
 
