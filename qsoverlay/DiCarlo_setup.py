@@ -112,6 +112,11 @@ def quick_setup(qubit_list,
         }
     }
 
+    if connectivity_dic:
+        for qubit in qubit_list:
+            if qubit not in connectivity_dic:
+                connectivity_dic[qubit] = []
+
     setup['gate_set'] = make_1q2q_gateset(qubit_dic=setup['qubit_dic'],
                                           gate_dic=setup['gate_dic'],
                                           connectivity_dic=connectivity_dic)
