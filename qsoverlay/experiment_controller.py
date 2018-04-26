@@ -70,7 +70,7 @@ class Controller:
         self.qubits = data['qubits']
         self.angle_convert_matrices = {
             key: np.array(val)
-            for key, val in data['angle_convert_matrices']
+            for key, val in data['angle_convert_matrices'].items()
         }
 
         b = Builder(setup)
@@ -92,7 +92,7 @@ class Controller:
             'circuit_lists': self.circuit_lists,
             'angle_convert_matrices': {
                 key: val.tolist()
-                for key, val in self.angle_convert_matrices}
+                for key, val in self.angle_convert_matrices.items()}
         }
 
         with open(filename, 'w') as outfile:
