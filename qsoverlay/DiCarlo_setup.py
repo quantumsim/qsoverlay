@@ -14,20 +14,21 @@ from .experiment_setup import Setup
 
 
 def quick_setup(qubit_list,
+                connectivity_dic=None,
                 **kwargs):
     '''
     Quick setup: a function to return a setup that may be immediately
     used to make a qsoverlay builder.
-    
+
     The setup file accepts the following parameters, defined in
     arXiv:1703:04136 (or elsewhere):
 
     noise_flag(=True): turn on or off noise (for debugging)
     scale(=1): multiplier for t1,t2 (and divides other error rates
             by same amount)
-    t1(=30000): standard T1 time 
+    t1(=30000): standard T1 time
                 (arXiv:1703.04136, App.B.1, eq. B2)
-    t2(=30000): standard T2 time 
+    t2(=30000): standard T2 time
                 (arXiv:1703.04136, App.B.1, eq. B3
                                    and Sec.IV.B.1 eq. 6)
     dephasing_axis(=1e-4): dephasing of x/y rotations along the
@@ -112,7 +113,8 @@ def quick_setup(qubit_list,
     }
 
     setup['gate_set'] = make_1q2q_gateset(qubit_dic=setup['qubit_dic'],
-                                          gate_dic=setup['gate_dic'])
+                                          gate_dic=setup['gate_dic'],
+                                          connectivity_dic=connectivity_dic)
     return Setup(**setup)
 
 

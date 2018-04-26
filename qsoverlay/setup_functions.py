@@ -62,7 +62,7 @@ def fill_gateset(qubit_dic, gate_dic, gate_set):
     return gate_set
 
 
-def make_1q2q_gateset(qubit_dic, gate_dic):
+def make_1q2q_gateset(qubit_dic, gate_dic, connectivity_dic=None):
 
     '''
     A function to make a full set of 1 and 2 qubit
@@ -106,6 +106,10 @@ def make_1q2q_gateset(qubit_dic, gate_dic):
                     if q2 == qubit \
                             or 'classical' in q2params \
                             and q2params['classical'] is True:
+                        continue
+                    if connectivity_dic and (
+                            qubit not in connectivity_dic[q2] and
+                            q2 not in connectivity_dic[qubit]):
                         continue
 
                     # Insert everything - copy as these dictionaries
