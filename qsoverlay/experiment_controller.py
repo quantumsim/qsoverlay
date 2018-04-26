@@ -53,13 +53,13 @@ class Controller:
         self.angle_convert_matrices = angle_convert_matrices
 
         if filename is not None:
-            
+
             self.load(filename, setup)
 
         self.make_state()
 
     def load(self, filename, setup):
-        
+
         with open(filename, 'r') as infile:
             data = json.load(infile)
 
@@ -86,7 +86,7 @@ class Controller:
             'mbits': self.mbits,
             'qubits': self.qubits,
             'circuit_lists': self.circuit_lists,
-            'angle_convert_matrices': self.angle_convert_matrices
+            'angle_convert_matrices': self.angle_convert_matrices.tolist()
         }
 
         with open(filename, 'w') as outfile:
