@@ -26,9 +26,9 @@ def quick_setup(qubit_list,
     noise_flag(=True): turn on or off noise (for debugging)
     scale(=1): multiplier for t1,t2 (and divides other error rates
             by same amount)
-    t1(=30000): standard T1 time
+    t1(=30000ns): standard T1 time
                 (arXiv:1703.04136, App.B.1, eq. B2)
-    t2(=30000): standard T2 time
+    t2(=30000ns): standard T2 time
                 (arXiv:1703.04136, App.B.1, eq. B3
                                    and Sec.IV.B.1 eq. 6)
     dephasing_axis(=1e-4): dephasing of x/y rotations along the
@@ -67,10 +67,10 @@ def quick_setup(qubit_list,
                 measurement window
                 (arXiv:1703.04136 App.B.2 equation
                  bottom-left of page 12.)
-    kappa(=1 / 250): Resonator kappa
+    kappa(=1 / 250 ns^-1): Resonator kappa
                 (arXiv:1703.04136 App.B.2 equation
                  bottom-left of page 12.)
-    chi(=1.3 * 1e-3): Resonator chi
+    chi(=1.3 * 1e-3 ns^-1): Resonator chi
                 (arXiv:1703.04136 App.B.2 equation
                  bottom-left of page 12.)
     static_flux_std(=None): Variance of static flux
@@ -85,15 +85,15 @@ def quick_setup(qubit_list,
     dephase_var(=1e-2/(2*pi)): Variance of incoherent version
                 of static flux noise (integrated over
                 all realisations).
-    msmt_time(=600): Total time for measurement (including
+    msmt_time(=600ns): Total time for measurement (including
                 time for resonator depletion/relaxation).
-    interval_time(=150): Point in the measurement time that
+    interval_time(=150ns): Point in the measurement time that
                 the readout occurs at.
-    oneq_gate_time(=20): Time that every single qubit gate
+    oneq_gate_time(=20ns): Time that every single qubit gate
                 takes to perform.
-    CZ_gate_time(=40): time required to perform CZ gate.
+    CZ_gate_time(=40ns): time required to perform CZ gate.
                 ISwap gate times are fixed to sqrt(2) times this.
-    reset_time(=500): time required to reset qubits (following
+    reset_time(=500ns): time required to reset qubits (following
                 arXiv:1801.07689, but currently without any error
                 in the reset itself).
     sampler(=None): sampler to generate measurement results.
