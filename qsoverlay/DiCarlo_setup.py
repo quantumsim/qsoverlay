@@ -63,7 +63,7 @@ def quick_setup(qubit_list,
     photons(=False): whether to include dephasing due to
                 resonator photons after measurements.
                 (arXiv:1703.04136 App.B.2)
-    alpha0(=4): photon population at the end of the
+    alpha0(=4 photons): photon population at the end of the
                 measurement window
                 (arXiv:1703.04136 App.B.2 equation
                  bottom-left of page 12.)
