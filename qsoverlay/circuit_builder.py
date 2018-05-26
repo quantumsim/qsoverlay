@@ -231,7 +231,7 @@ class Builder:
         return self.add_gate(gate_name, qubit_list,
                              return_flag=return_flag, **kwargs)
 
-    def add_gate(self, gate_name, 
+    def add_gate(self, gate_name,
                  qubit_list, return_flag=False,
                  **kwargs):
         '''

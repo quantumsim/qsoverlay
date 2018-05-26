@@ -6,6 +6,7 @@ for a VQE).
 '''
 
 from quantumsim.sparsedm import SparseDM
+from quantumsim.circuit import Measurement
 import numpy as np
 from .circuit_builder import Builder
 from .experiment_setup import Setup
@@ -84,7 +85,12 @@ class Controller:
             b.finalize()
             self.circuits[name] = b.circuit
             self.circuit_lists[name] = cl
-            self.adjust_gates[name] = adjust_gates
+            self.adjust_gates[name] = [
+                ag for ag in adjust_gates
+                if type(ag) is not Measurement]
+            self.measurement_gates[name] = [
+                ag for ag in adjust_gates
+                if type(ag) is Measurement]
             if name in data['angle_convert_matrices']:
                 self.angle_convert_matrices =\
                     data['angle_convert_matrices'][name]
