@@ -26,6 +26,7 @@ class Controller:
                  circuits={},
                  circuit_lists={},
                  adjust_gates={},
+                 measurement_gates={},
                  angle_convert_matrices={},
                  mbits=[]):
 
@@ -38,6 +39,8 @@ class Controller:
         adjust_gates: a list of adjustable gates in a circuit
             that the user might pass parameters to when they run
             the circuit.
+        measurement_gates: a set of Measurement type operators
+            to extract extra details about the measurements made.
         '''
 
         if 'record' in circuits:
@@ -51,6 +54,7 @@ class Controller:
         self.circuit_lists = circuit_lists
         self.adjust_gates = adjust_gates
         self.angle_convert_matrices = angle_convert_matrices
+        self.measurement_gates = measurement_gates
 
         if filename is not None:
 
@@ -134,7 +138,10 @@ class Controller:
 
             op_name = circuit[0]
             if type(op_name) == int:
-                return self.apply_circuit(circuit[1])
+                return_data = []
+                for _ in range(op_name):
+                    return_data.append(self.apply_circuit(circuit[1]))
+                return return_data
 
             else:
                 if op_name in self.angle_convert_matrices:
@@ -147,14 +154,21 @@ class Controller:
                     gate.adjust(param)
                 self.circuits[op_name].apply_to(self.state,
                                                 apply_all_pending=False)
-                return None
 
         else:
             op_name = circuit
             self.circuits[op_name].apply_to(self.state,
                                             apply_all_pending=False)
 
-            return None
+        if op_name in self.measurement_gates:
+            return_data = [{
+                'probabilities': m.probabilities[-1],
+                'projects': m.projects[-1],
+                'measurements': m.measurements[-1]}
+                for m in self.measurement_gates[op_name]]
+            return return_data
+
+        return None
 
     def __lt__(self, circuit):
         self.apply_circuit(circuit)

@@ -4,6 +4,8 @@ Assumes a gate set for a system, and inserts new gates end-on, keeping track
 of at what time the next gate can be executed.
 
 Does not do any compilation; this should possibly be inserted later.
+
+TODO: fix up return_flag
 '''
 
 import numpy as np
