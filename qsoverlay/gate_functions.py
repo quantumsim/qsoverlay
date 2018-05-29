@@ -134,14 +134,14 @@ def insert_measurement(builder,
             bit, time=time, p_exc=p_exc_init, p_dec=p_dec_init)
         circuit.add_gate(g)
 
-    # Add measurement
-    circuit.add_measurement(bit, time=time + interval_time,
-                            sampler=sampler, output_bit=output_bit,
-                            real_output_bit=real_output_bit)
-
     # Add decay post-measurement
     if p_exc_fin + p_dec_fin > 0:
         g = quantumsim.circuit.ButterflyGate(
             bit, time=time + 2 * interval_time,
             p_exc=p_exc_fin, p_dec=p_dec_fin)
         circuit.add_gate(g)
+
+    # Add measurement
+    circuit.add_measurement(bit, time=time + interval_time,
+                            sampler=sampler, output_bit=output_bit,
+                            real_output_bit=real_output_bit)
