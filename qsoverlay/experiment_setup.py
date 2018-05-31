@@ -13,11 +13,12 @@ class Setup:
 
     def __init__(
             self, filename=None,
+            seed=None, state=None,
             gate_dic={}, update_rules=[],
             qubit_dic={}, gate_set={}):
 
         if filename is not None:
-            self.load(filename)
+            self.load(filename, seed, state)
         else:
             self.gate_dic = gate_dic
             self.update_rules = update_rules
