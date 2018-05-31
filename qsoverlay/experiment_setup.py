@@ -35,7 +35,7 @@ class Setup:
         # Currently assumes each qubit uses the same
         # uniform_noisy_sampler - this needs fixing
 
-        if seed==None and state==None:
+        if seed is None and state is None:
             seed = list(self.qubit_dic.values())[0]['seed']
         readout_error = list(self.qubit_dic.values())[0]['readout_error']
         sampler = uniform_noisy_sampler(
@@ -45,7 +45,8 @@ class Setup:
             qb_params['sampler'] = sampler
 
         self.gate_set = {
-            tuple(gate['key']): gate['val'] for gate in setup_load_format['gate_set']
+            tuple(gate['key']): gate['val']
+            for gate in setup_load_format['gate_set']
         }
         for gate in self.gate_set.values():
             if 'sampler' in gate[0] and gate[0]['sampler'] is True:
@@ -54,7 +55,7 @@ class Setup:
         gd = GateData()
 
         self.gate_dic = {
-            key: gd.available_gate_dic[val] 
+            key: gd.available_gate_dic[val]
             for key, val in setup_load_format['gate_dic'].items()
         }
 
@@ -64,7 +65,7 @@ class Setup:
         # switch from functions to names of functions in
         # gate_dic to allow saving
         gate_dic_save_format = {
-            key: val['name'] 
+            key: val['name']
             for key, val in self.gate_dic.items()
         }
 
@@ -76,7 +77,7 @@ class Setup:
             del qd['sampler']
 
         gate_set_save_format = [
-            {'key': key, 'val': [{**val[0]},{**val[1]}]} 
+            {'key': key, 'val': [{**val[0]}, {**val[1]}]}
             for key, val in self.gate_set.items()
         ]
         for gate_desc in gate_set_save_format:
