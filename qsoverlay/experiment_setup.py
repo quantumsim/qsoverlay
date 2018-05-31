@@ -24,7 +24,7 @@ class Setup:
             self.qubit_dic = qubit_dic
             self.gate_set = gate_set
 
-    def load(self, filename):
+    def load(self, filename, seed=None, state=None):
         with open(filename, 'r') as infile:
             setup_load_format = json.load(infile)
 
@@ -34,10 +34,11 @@ class Setup:
         # Currently assumes each qubit uses the same
         # uniform_noisy_sampler - this needs fixing
 
-        seed = list(self.qubit_dic.values())[0]['seed']
+        if seed==None and state==None:
+            seed = list(self.qubit_dic.values())[0]['seed']
         readout_error = list(self.qubit_dic.values())[0]['readout_error']
         sampler = uniform_noisy_sampler(
-            seed=seed, readout_error=readout_error)
+            seed=seed, state=state, readout_error=readout_error)
 
         for qb_params in self.qubit_dic.values():
             qb_params['sampler'] = sampler
