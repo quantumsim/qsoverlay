@@ -60,6 +60,8 @@ def quick_setup(qubit_list,
                 (separate from T1 effects!)
                 (arXiv:1703.04136 App.B.6 Fig.9
                  defined as $p_2^downarrow$)
+    residual_excitations(=0.01): residual excitation population
+                in transmon qubits after readout.
     photons(=False): whether to include dephasing due to
                 resonator photons after measurements.
                 (arXiv:1703.04136 App.B.2)
@@ -173,6 +175,7 @@ def get_qubit(noise_flag=True,
               p_dec_init=0.005,
               p_exc_fin=0.0,
               p_dec_fin=0.015,
+              residual_excitations=0.01,
               photons=False,
               alpha0=4,
               kappa=1 / 250,
@@ -223,6 +226,7 @@ def get_qubit(noise_flag=True,
             'p_dec_init': p_dec_init*scale,
             'p_exc_fin': p_exc_fin*scale,
             'p_dec_fin': p_dec_fin*scale,
+            'residual_excitations': residual_excitations*scale,
             'msmt_time': msmt_time,
             'interval_time': interval_time,
             'oneq_gate_time': oneq_gate_time,
@@ -252,6 +256,7 @@ def get_qubit(noise_flag=True,
             'p_dec_init': 0,
             'p_exc_fin': 0,
             'p_dec_fin': 0,
+            'residual_excitations': 0,
             'msmt_time': msmt_time,
             'interval_time': interval_time,
             'oneq_gate_time': oneq_gate_time,

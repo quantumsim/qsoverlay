@@ -238,7 +238,9 @@ ResetGate = {
     'builder_args': {
         'gate_time': 'reset_time',
     },
-    'circuit_args': {},
+    'circuit_args': {
+        'population': 'residual_excitations'
+    },
     'qubit_circuit_kws': [],
     'user_kws': []
 }
