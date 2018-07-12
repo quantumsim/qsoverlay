@@ -196,6 +196,25 @@ class Controller:
 
         return output_list
 
+    def simulate_tomo(self, circuit,
+                      tomo_circuits,
+                      measurement_model,
+                      num_measurements):
+        '''
+        Takes the current system state, copies it,
+        applies multiple tomography circuits, and runs them through
+        models for the measurement to return thresholded voltages.
+        '''
+        data = []
+        for tomo_circuit in tomo_circuits:
+            self.reset()
+            self < circuit
+            self < tomo_circuit
+            self.state.normalize()
+            rho_dist = self.state.peak_multiple_measurements(
+                measurement_model.qubits)
+            data.append(measurement_model.sample(rho_dist), num_measurements)
+
     def get_expectation_values(self, msmts, num_repetitions=None):
         '''
         Measures a set of Pauli strings on the current state.
