@@ -124,6 +124,34 @@ def quick_setup(qubit_list,
                                           connectivity_dic=connectivity_dic)
     return Setup(**setup)
 
+def asymmetric_setup(qubit_parameters={},
+                     connectivity_dic=None,
+                     **kwargs):
+    '''
+    Prepares a setup for asymmetric qubits that may be immediately used to make a qsoverlay builder
+
+    qubit_parameters is a dictionary that contains the paramters for each qubit in the following form:
+    {['q1', 'q2', .., 'qn'],[{'t1': value, 't2': value, ...}, {'t1': value, 't2': value, ...}, ..., {'t1': value, 't2': value, ...}]}
+    Unspecified parameters will take the default values from get_qubit function
+    '''
+    qubit_list = qubit_parameters[0]
+    asym_setup = {
+        'gate_dic':get_gate_dic(),
+        'update_rules':get_update_rules(**kwargs),
+        'qubit_dic': {q : get_qubit(**params) 
+                                   for q, params in zip(*qubit_parameters)}
+    }
+    
+    if connectivity_dic:
+        for qubit in qubit_list:
+            if qubit not in connectivity_dic:
+                connectivity_dic[qubit] = []
+
+    asym_setup['gate_set'] = make_1q2q_gateset(qubit_dic=asym_setup['qubit_dic'],
+                                             gate_dic=asym_setup['gate_dic'],
+                                             connectivity_dic=connectivity_dic)
+    return Setup(**asym_setup)
+
 
 def get_gate_dic():
     '''
@@ -231,7 +259,7 @@ def get_qubit(noise_flag=True,
             'interval_time': interval_time,
             'oneq_gate_time': oneq_gate_time,
             'CZ_gate_time': CZ_gate_time,
-            'ISwap_gate_time': CZ_gate_time*np.sqrt(2),
+            'ISwap_gate_time': CZ_gate_time,#*np.sqrt(2),
             'reset_time': reset_time,
             'photons': photons,
             'alpha0': alpha0,
@@ -261,7 +289,7 @@ def get_qubit(noise_flag=True,
             'interval_time': interval_time,
             'oneq_gate_time': oneq_gate_time,
             'CZ_gate_time': CZ_gate_time,
-            'ISwap_gate_time': CZ_gate_time*np.sqrt(2),
+            'ISwap_gate_time': CZ_gate_time,#*np.sqrt(2),
             'reset_time': reset_time,
             'photons': False,
             'quasistatic_flux': None,
