@@ -21,7 +21,7 @@ import quantumsim.circuit
 from .gate_functions import (
     insert_CZ, insert_CPhase, insert_measurement,
     had_from_rot, CNOT_from_CZ, X_gate, Y_gate, Z_gate,
-    CRX_from_CZ)
+    CRX_from_CZ, insert_reset)
 
 
 def make_gate(function, num_qubits, gate_time_label, **kwargs):
@@ -233,10 +233,25 @@ ISwapRotation = {
 
 ResetGate = {
     'name': 'ResetGate',
-    'function': quantumsim.circuit.ResetGate,
+    'function': insert_reset,
     'num_qubits': 1,
     'builder_args': {
         'gate_time': 'reset_time',
+    },
+    'circuit_args': {
+        'population': 'residual_excitations',
+        'reset_time': 'reset_time'
+    },
+    'qubit_circuit_kws': [],
+    'user_kws': []
+}
+
+PrepGate = {
+    'name': 'ResetGate',
+    'function': quantumsim.circuit.ResetGate,
+    'num_qubits': 1,
+    'builder_args': {
+        'gate_time': 0,
     },
     'circuit_args': {
         'population': 'residual_excitations'

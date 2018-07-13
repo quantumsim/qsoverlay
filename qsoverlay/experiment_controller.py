@@ -199,7 +199,8 @@ class Controller:
     def simulate_tomo(self, circuit,
                       tomo_circuits,
                       measurement_model,
-                      num_measurements):
+                      num_measurements,
+                      output_format):
         '''
         Takes the current system state, copies it,
         applies multiple tomography circuits, and runs them through
@@ -207,13 +208,15 @@ class Controller:
         '''
         data = []
         for tomo_circuit in tomo_circuits:
-            self.reset()
+            self.make_state()
             self < circuit
             self < tomo_circuit
-            self.state.normalize()
+            self.state.renormalize()
             rho_dist = self.state.peak_multiple_measurements(
                 measurement_model.qubits)
-            data.append(measurement_model.sample(rho_dist), num_measurements)
+            data.append(measurement_model.sample(rho_dist,
+                        num_measurements, output_format))
+        return data
 
     def get_expectation_values(self, msmts, num_repetitions=None):
         '''

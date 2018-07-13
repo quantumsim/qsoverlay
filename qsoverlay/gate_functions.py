@@ -147,3 +147,14 @@ def insert_measurement(builder,
     circuit.add_measurement(bit, time=time + interval_time,
                             sampler=sampler, output_bit=output_bit,
                             real_output_bit=real_output_bit)
+
+
+def insert_reset(builder,
+                 bit,
+                 time,
+                 reset_time,
+                 population):
+    circuit = builder.circuit
+    reset_gate = quantumsim.circuit.ResetGate(
+        bit=bit, time=time+reset_time, population=population)
+    circuit.add_gate(reset_gate)

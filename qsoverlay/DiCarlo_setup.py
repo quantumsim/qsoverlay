@@ -8,7 +8,8 @@ from numpy import pi
 from quantumsim.circuit import uniform_noisy_sampler, uniform_sampler
 from .setup_functions import make_1q2q_gateset
 from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure,\
-                   ISwap, ISwapRotation, ResetGate, Had, CNOT, XGate, YGate, ZGate, CRX
+                   ISwap, ISwapRotation, ResetGate, Had, CNOT, XGate, YGate, ZGate, CRX,\
+                   PrepGate
 from .update_functions import update_quasistatic_flux
 from .experiment_setup import Setup
 
@@ -76,7 +77,7 @@ def quick_setup(qubit_list,
                 (arXiv:1703.04136 App.B.2 equation
                  bottom-left of page 12.)
     static_flux_std(=None): Variance of static flux
-                in the resonator. None=off. 
+                in the resonator. None=off.
                 Note - turning this on
                 will require a circuit be repeatedly simulated
                 to acquire good statistics of this noise.
@@ -124,32 +125,44 @@ def quick_setup(qubit_list,
                                           connectivity_dic=connectivity_dic)
     return Setup(**setup)
 
+
 def asymmetric_setup(qubit_parameters={},
                      connectivity_dic=None,
                      **kwargs):
     '''
-    Prepares a setup for asymmetric qubits that may be immediately used to make a qsoverlay builder
+    Prepares a setup for asymmetric qubits that may be immediately used to make
+    a qsoverlay builder
 
-    qubit_parameters is a dictionary that contains the paramters for each qubit in the following form:
-    {['q1', 'q2', .., 'qn'],[{'t1': value, 't2': value, ...}, {'t1': value, 't2': value, ...}, ..., {'t1': value, 't2': value, ...}]}
+    qubit_parameters is a dictionary that contains the paramters for each qubit
+    in the following form:
+    {'q1': {'t1': val, 't2': val, ...},
+     'q2': {'t1': val, 't2': val, ...}}
+    or:
+    [['q1', 'q2', .., 'qn'],[{'t1': value, 't2': value, ...},
+    {'t1': value, 't2: value, ...}, ..., {'t1': value, 't2': value, ...}]]
     Unspecified parameters will take the default values from get_qubit function
     '''
-    qubit_list = qubit_parameters[0]
+    if type(qubit_parameters) == list:
+        qubit_parameters = {
+            key: val
+            for key, val in zip(qubit_parameters[0], qubit_parameters[1])}
+
+    qubit_list = qubit_parameters.keys()
     asym_setup = {
-        'gate_dic':get_gate_dic(),
-        'update_rules':get_update_rules(**kwargs),
-        'qubit_dic': {q : get_qubit(**params) 
-                                   for q, params in zip(*qubit_parameters)}
+        'gate_dic': get_gate_dic(),
+        'update_rules': get_update_rules(**kwargs),
+        'qubit_dic': {q: get_qubit(**params)
+                      for q, params in qubit_parameters.items()}
     }
-    
     if connectivity_dic:
         for qubit in qubit_list:
             if qubit not in connectivity_dic:
                 connectivity_dic[qubit] = []
 
-    asym_setup['gate_set'] = make_1q2q_gateset(qubit_dic=asym_setup['qubit_dic'],
-                                             gate_dic=asym_setup['gate_dic'],
-                                             connectivity_dic=connectivity_dic)
+    asym_setup['gate_set'] = make_1q2q_gateset(
+        qubit_dic=asym_setup['qubit_dic'],
+        gate_dic=asym_setup['gate_dic'],
+        connectivity_dic=connectivity_dic)
     return Setup(**asym_setup)
 
 
@@ -178,6 +191,7 @@ def get_gate_dic():
         'Measure': Measure,
         'ISwap': ISwap,
         'ISwapRotation': ISwapRotation,
+        'PrepGate': PrepGate,
         'ResetGate': ResetGate,
         'Reset': ResetGate,
         'Had': Had,
@@ -259,7 +273,7 @@ def get_qubit(noise_flag=True,
             'interval_time': interval_time,
             'oneq_gate_time': oneq_gate_time,
             'CZ_gate_time': CZ_gate_time,
-            'ISwap_gate_time': CZ_gate_time,*np.sqrt(2),
+            'ISwap_gate_time': CZ_gate_time*np.sqrt(2),
             'reset_time': reset_time,
             'photons': photons,
             'alpha0': alpha0,
@@ -289,7 +303,7 @@ def get_qubit(noise_flag=True,
             'interval_time': interval_time,
             'oneq_gate_time': oneq_gate_time,
             'CZ_gate_time': CZ_gate_time,
-            'ISwap_gate_time': CZ_gate_time,*np.sqrt(2),
+            'ISwap_gate_time': CZ_gate_time*np.sqrt(2),
             'reset_time': reset_time,
             'photons': False,
             'quasistatic_flux': None,
