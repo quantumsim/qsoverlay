@@ -81,7 +81,7 @@ class CorrelatedMeasurement:
         M_vec = self.cc_matrix @ rho_vec
 
         if np.abs(sum(M_vec) - 1) > self.EQ_TOL:
-            raise ValueError('my measurement normalization is: ', sum(rho_vec))
+            raise ValueError('my measurement normalization is: ', sum(M_vec))
 
         measurements = self.random_state.choice(
             range(2**self.num_qubits),

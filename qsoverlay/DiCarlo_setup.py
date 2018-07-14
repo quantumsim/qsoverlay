@@ -191,6 +191,7 @@ def get_gate_dic():
         'Measure': Measure,
         'ISwap': ISwap,
         'ISwapRotation': ISwapRotation,
+        'prepz': PrepGate,
         'PrepGate': PrepGate,
         'ResetGate': ResetGate,
         'Reset': ResetGate,

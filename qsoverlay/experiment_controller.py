@@ -154,7 +154,6 @@ class Controller:
                     angles = self.angle_convert_matrices[op_name] @ circuit[1:]
                 else:
                     angles = circuit[1:]
-
                 for gate, param in zip(
                         self.adjust_gates[op_name], angles):
                     gate.adjust(param)
