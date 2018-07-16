@@ -199,7 +199,7 @@ class Controller:
                       tomo_circuits,
                       measurement_model,
                       num_measurements,
-                      output_format):
+                      output_format, data_type):
         '''
         Takes the current system state, copies it,
         applies multiple tomography circuits, and runs them through
@@ -214,7 +214,7 @@ class Controller:
             rho_dist = self.state.peak_multiple_measurements(
                 measurement_model.qubits)
             data.append(measurement_model.sample(rho_dist,
-                        num_measurements, output_format))
+                        num_measurements, data_type=data_type, output_format=output_format))
         return data
 
     def get_expectation_values(self, msmts, num_repetitions=None):

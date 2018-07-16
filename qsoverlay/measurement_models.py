@@ -55,7 +55,7 @@ class CorrelatedMeasurement:
 
     def sample(self, rho_dist,
                num_measurements,
-               data_type='shots',
+               data_type='shots',# If averages put single_shot to False in tomo
                output_format='full'):
         '''
         Calculates the true distribution of measurements from the
