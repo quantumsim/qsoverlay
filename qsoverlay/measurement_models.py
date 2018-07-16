@@ -54,7 +54,9 @@ class CorrelatedMeasurement:
         self.cc_matrix = cc_matrix @ np.linalg.inv(pop_matrix)
 
     def sample(self, rho_dist,
-               num_measurements, output_format='full'):
+               num_measurements,
+               data_type='shots',
+               output_format='full'):
         '''
         Calculates the true distribution of measurements from the
         peak_multiple_measurement function given in quantumsim,
@@ -83,19 +85,28 @@ class CorrelatedMeasurement:
         if np.abs(sum(M_vec) - 1) > self.EQ_TOL:
             raise ValueError('my measurement normalization is: ', sum(M_vec))
 
-        measurements = self.random_state.choice(
-            range(2**self.num_qubits),
-            size=num_measurements,
-            p=M_vec)
+        if data_type == 'shots':
 
-        measurements = [
-            np.array(list(reversed(self.lit_string.format(m))),
-                     dtype=int)
-            for m in measurements]
+            measurements = self.random_state.choice(
+                range(2**self.num_qubits),
+                size=num_measurements,
+                p=M_vec)
 
-        if output_format is not 'full':
-            measurements = [[sum(m[indices]) % 2
-                             for indices in output_format]
-                            for m in measurements]
+            measurements = [
+                np.array(list(reversed(self.lit_string.format(m))),
+                         dtype=int)
+                for m in measurements]
+
+            if output_format is not 'full':
+                measurements = [[sum(m[indices]) % 2
+                                 for indices in output_format]
+                                for m in measurements]
+
+        else:
+            measurements = M_vec
+            if output_format is not 'full':
+                measurements = [[sum(m[indices]) % 2
+                                 for indices in output_format]
+                                for m in measurements]
 
         return measurements
