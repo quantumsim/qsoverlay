@@ -105,8 +105,16 @@ class CorrelatedMeasurement:
         else:
             measurements = M_vec
             if output_format is not 'full':
-                measurements = [[sum(m[indices]) % 2
-                                 for indices in output_format]
-                                for m in measurements]
+                measurements = [sum([m for m, j in enumerate(measurements)
+                                     if self.indices_in_j(indices, j)])
+                                for indices in output_format]
 
         return measurements
+
+    def indices_in_j(indices, j):
+        n = 0
+        while j > 0:
+            if n in indices and j % 2 == 0:
+                return False
+            n += 1
+            j = j // 2
