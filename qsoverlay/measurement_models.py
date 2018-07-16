@@ -108,10 +108,10 @@ class CorrelatedMeasurement:
                 measurements = [sum([m for m, j in enumerate(measurements)
                                      if self.indices_in_j(indices, j)])
                                 for indices in output_format]
-
+                                
         return measurements
 
-    def indices_in_j(indices, j):
+    def indices_in_j(self,indices, j):
         n = 0
         while j > 0:
             if n in indices and j % 2 == 0:
