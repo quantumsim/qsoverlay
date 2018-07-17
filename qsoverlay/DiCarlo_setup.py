@@ -16,6 +16,7 @@ from .experiment_setup import Setup
 
 def quick_setup(qubit_list,
                 connectivity_dic=None,
+                seed=None,
                 **kwargs):
     '''
     Quick setup: a function to return a setup that may be immediately
@@ -107,6 +108,10 @@ def quick_setup(qubit_list,
                  arXiv:1703.04136, App.B.6 Fig.9)
     '''
 
+    if seed is not None:
+        state = np.random.RandomState(seed)
+        kwargs['state'] = state
+
     setup = {
         'gate_dic': get_gate_dic(),
         'update_rules': get_update_rules(**kwargs),
@@ -128,6 +133,7 @@ def quick_setup(qubit_list,
 
 def asymmetric_setup(qubit_parameters={},
                      connectivity_dic=None,
+                     seed=None,
                      **kwargs):
     '''
     Prepares a setup for asymmetric qubits that may be immediately used to make
@@ -146,6 +152,10 @@ def asymmetric_setup(qubit_parameters={},
         qubit_parameters = {
             key: val
             for key, val in zip(qubit_parameters[0], qubit_parameters[1])}
+
+    if seed is not None:
+        for qubit in qubit_parameters.values:
+            qubit['state'] = np.random.RandomState(seed)
 
     qubit_list = qubit_parameters.keys()
     asym_setup = {
@@ -231,8 +241,8 @@ def get_qubit(noise_flag=True,
               oneq_gate_time=20,
               CZ_gate_time=40,
               reset_time=500,
+              state=None,
               sampler=None,
-              seed=None,
               readout_error=0.005,
               **kwargs):
     '''
@@ -245,11 +255,11 @@ def get_qubit(noise_flag=True,
     '''
     if sampler is None:
         if noise_flag is True:
-            sampler = uniform_noisy_sampler(seed=seed,
+            sampler = uniform_noisy_sampler(state=state,
                                             readout_error=readout_error)
         else:
             readout_error = 0
-            sampler = uniform_sampler(seed=seed)
+            sampler = uniform_sampler(state=state)
 
     if static_flux_std is not None:
         quasistatic_flux = static_flux_std * np.random.randn()
@@ -284,7 +294,6 @@ def get_qubit(noise_flag=True,
             'high_frequency': high_frequency,
             'sampler': sampler,
             'readout_error': readout_error,
-            'seed': seed
         }
     else:
 
@@ -311,7 +320,6 @@ def get_qubit(noise_flag=True,
             'high_frequency': False,
             'sampler': sampler,
             'readout_error': 0,
-            'seed': seed
         }
 
     for key, val in kwargs.items():
