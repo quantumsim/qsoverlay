@@ -262,16 +262,19 @@ class Controller:
             result = float(np.real(result))
 
             if num_repetitions is not None:
-                bernoulli_rv = (result + 1)/2
-                sample_std = np.sqrt(bernoulli_rv*(1-bernoulli_rv) /
-                                     num_repetitions)
-                noisy_result = np.random.normal(loc=bernoulli_rv,
-                                                scale=sample_std) * 2 - 1
-                if noisy_result < -1:
-                    noisy_result = -1
-                if noisy_result > 1:
+                bernoulli_rv = (1 - result)/2
+                if bernoulli_rv <= 0 and bernoulli_rv > -1e-6:
+                    noisy_result = 0
+                elif bernoulli_rv >= 1 and bernoulli_rv <= 1+1e-6:
                     noisy_result = 1
-                results.append(noisy_result)
+                else:
+                    try:
+                        noisy_result = np.random.beta(bernoulli_rv*num_repetitions,
+                                                      (1-bernoulli_rv)*num_repetitions)
+                    except:
+                        raise ValueError('My bernoulli random variable is weird: {}'.format(bernoulli_rv))
+
+                results.append(1-2*noisy_result)
             else:
                 results.append(result)
 
