@@ -34,7 +34,7 @@ def CNOT_from_CZ(builder, bit0, bit1, time):
 def CRX_from_CZ(builder, bit0, bit1, angle, time):
     '''Creates a CNOT gate from a CZ gate'''
     builder < ('RY', bit1, -pi/2)
-    builder < ('RZ', bit0, -angle)
+    builder < ('RZ', bit0, -angle/2)
     builder < ('CPhase', bit0, bit1, angle)
     builder < ('RY', bit1, pi/2)
 
