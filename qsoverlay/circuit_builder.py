@@ -353,7 +353,12 @@ class Builder:
         they're not in here right now.
         '''
 
-        circuit_time = max(self.times.values()) + t_add
+        circuit_time = max(self.times.values())
+        if type(t_add) == dict:
+            circuit_time = {key: val + circuit_time
+                            for key, val in t_add.items()}
+        else:
+            circuit_time += t_add
 
         # args = list(self.qubit_dic.values())[0]
 
