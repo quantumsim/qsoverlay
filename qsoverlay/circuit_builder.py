@@ -130,7 +130,7 @@ class Builder:
 
         return reversed_circuit_builder
 
-    def add_qasm(self, qasm_generator, qubits_first=True):
+    def add_qasm(self, qasm_generator, qubits_first=True, **params):
         '''
         Converts a qasm file into a circuit.
         qasm_generator should yield lines of qasm when called.
@@ -140,10 +140,14 @@ class Builder:
         Importantly, currently only allowing for a single space
         in between words.
         '''
+
         for line in qasm_generator:
 
+            # Copy kwargs to prevent overwriting
+            kwargs = {**params}
+
             # Get positions of spaces in line
-            spaces = [i for i,x in enumerate(line) if x==',' or x==' ']
+            spaces = [i for i, x in enumerate(line) if x == ',' or x == ' ']
             spaces.append(len(line))
 
             # Get the gate name
@@ -167,17 +171,17 @@ class Builder:
                               for j in range(num_qubits)]
 
                 # Add arguments from qasm to kwargs
-                kwargs = {}
                 for n, kw in enumerate(user_kws):
                     try:
-                        kwargs[kw] = float(line[spaces[n+num_qubits]+1:spaces[n+num_qubits+1]])
+                        kwargs[kw] = float(line[spaces[n+num_qubits]+1:
+                                                spaces[n + num_qubits+1]])
                     except:
-                        kwargs[kw] = line[spaces[n+num_qubits]+1:spaces[n+num_qubits+1]]
+                        kwargs[kw] = line[spaces[n+num_qubits]+1:
+                                          spaces[n+num_qubits+1]]
 
             else:
 
                 # Add arguments from qasm to kwargs
-                kwargs = {}
                 for n, kw in enumerate(user_kws):
                     try:
                         kwargs[kw] = float(line[spaces[n]+1:spaces[n+1]])
@@ -191,11 +195,13 @@ class Builder:
             try:
                 self.add_gate(gate_name, qubit_list, **kwargs)
             except Exception as inst:
+                print()
+                print('Adding gate failed!')
                 try:
                     print(kwargs['angle'])
                 except:
                     pass
-                print(gate_name, qubit_list, kwargs)
+                print(line, gate_name, qubit_list, kwargs)
                 raise inst
 
     def add_circuit_list(self, circuit_list):

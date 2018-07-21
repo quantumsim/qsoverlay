@@ -11,6 +11,7 @@ import numpy as np
 from .circuit_builder import Builder
 from .experiment_setup import Setup
 import json
+import warnings
 
 sx = np.array([[0, 1], [1, 0]])
 sy = np.array([[0, -1j], [1j, 0]])
@@ -23,6 +24,7 @@ class Controller:
     def __init__(self,
                  filename=None,
                  setup=None,
+                 random_state=None,
                  qubits=[],
                  circuits={},
                  circuit_lists={},
@@ -34,8 +36,10 @@ class Controller:
         '''
         qubits: list of qubits in the experiment
         mbits: the set of bits to receive measurements
-        op_circuits: dictionary of circuits to apply to a state
+        circuits: dictionary of circuits to apply to a state
             to perform an operation.
+        circuit_lists: corresponding circuit lists (as output by qsoverlay
+            builder for saving purposes)
         msmt_circuits: dictionary of circuits to measure a state.
         adjust_gates: a list of adjustable gates in a circuit
             that the user might pass parameters to when they run
@@ -56,6 +60,11 @@ class Controller:
         self.adjust_gates = adjust_gates
         self.angle_convert_matrices = angle_convert_matrices
         self.measurement_gates = measurement_gates
+
+        if random_state is None:
+            warnings.warn('No random state given, using system clock')
+            random_state = np.random.RandomState()
+        self.random_state = random_state
 
         if filename is not None:
 
@@ -269,8 +278,10 @@ class Controller:
                     noisy_result = 1
                 else:
                     try:
-                        noisy_result = np.random.beta(bernoulli_rv*num_repetitions,
-                                                      (1-bernoulli_rv)*num_repetitions)
+                        noisy_result = np.random.beta(bernoulli_rv *
+                                                      num_repetitions,
+                                                      (1-bernoulli_rv) *
+                                                      num_repetitions)
                     except:
                         raise ValueError('My bernoulli random variable is weird: {}'.format(bernoulli_rv))
 
