@@ -140,7 +140,7 @@ class Builder:
         Importantly, currently only allowing for a single space
         in between words.
         '''
-
+        returned_gate_list = []
         for line in qasm_generator:
 
             # Copy kwargs to prevent overwriting
@@ -193,7 +193,9 @@ class Builder:
                               spaces[len(user_kws)+j+1]]
                               for j in range(num_qubits)]
             try:
-                self.add_gate(gate_name, qubit_list, **kwargs)
+                returned_gate = self.add_gate(gate_name, qubit_list, **kwargs)
+                if returned_gate is not None:
+                    returned_gate_list.append(returned_gate)
             except Exception as inst:
                 print()
                 print('Adding gate failed!')
@@ -203,6 +205,8 @@ class Builder:
                     pass
                 print(line, gate_name, qubit_list, kwargs)
                 raise inst
+
+        return returned_gate_list
 
     def add_circuit_list(self, circuit_list):
 
