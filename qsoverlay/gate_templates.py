@@ -215,7 +215,7 @@ ISwap = {
     'circuit_args': {
         'dephase_var': 'dephase_var'
     },
-    'user_kws': ['angle']
+    'user_kws': []
 }
 
 ISwapRotation = {
