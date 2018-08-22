@@ -180,18 +180,18 @@ class Builder:
                                           spaces[n+num_qubits+1]]
 
             else:
-
                 # Add arguments from qasm to kwargs
                 for n, kw in enumerate(user_kws):
                     try:
                         kwargs[kw] = float(line[spaces[n]+1:spaces[n+1]])
-                    except:
+                    except Exception:
                         kwargs[kw] = line[spaces[n]+1:spaces[n+1]]
 
                 # Create qubit list
                 qubit_list = [line[spaces[len(user_kws)+j]+1:
                               spaces[len(user_kws)+j+1]]
                               for j in range(num_qubits)]
+
             try:
                 returned_gate = self.add_gate(gate_name, qubit_list, **kwargs)
                 if returned_gate is not None:
@@ -304,10 +304,10 @@ class Builder:
             user_data = [kwargs[kw]
                          for kw in self.gate_dic[gate_name]['user_kws']]
             if return_flag is not False:
-                self.circuit_list.append((gate_name, *qubit_list, 
+                self.circuit_list.append((gate_name, *qubit_list,
                                           *user_data, return_flag))
             else:
-                self.circuit_list.append((gate_name, *qubit_list, 
+                self.circuit_list.append((gate_name, *qubit_list,
                                           *user_data))
 
         # Get the gate to add to quantumsim.
@@ -317,7 +317,7 @@ class Builder:
         # definitions when using recursive gates (i.e.
         # gates that are decomposed and fed back to
         # the builder). We turn it off, and turn it on
-        # after the execution of this gate if it was 
+        # after the execution of this gate if it was
         # previously on. As this could cause issues
         # when errors occur inserting the gate, we make
         # sure to turn it back afterwards regardless
