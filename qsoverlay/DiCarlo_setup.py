@@ -16,6 +16,7 @@ from .experiment_setup import Setup
 
 def quick_setup(qubit_list,
                 connectivity_dic=None,
+                state=None,
                 seed=None,
                 **kwargs):
     '''
@@ -107,10 +108,15 @@ def quick_setup(qubit_list,
                 (epsilon_{RO}^0=epsilon_{RO}^1 in
                  arXiv:1703.04136, App.B.6 Fig.9)
     '''
-
-    if seed is not None:
+    if state is not None:
+        kwargs['state'] = state
+    elif seed is not None:
         state = np.random.RandomState(seed)
         kwargs['state'] = state
+    else:
+        raise ValueError('''
+            We require either a numpy.random.RandomState
+            or a non-null seed for a setup.''')
 
     setup = {
         'gate_dic': get_gate_dic(),
@@ -133,6 +139,7 @@ def quick_setup(qubit_list,
 
 def asymmetric_setup(qubit_parameters={},
                      connectivity_dic=None,
+                     state=None,
                      seed=None,
                      **kwargs):
     '''
@@ -153,9 +160,15 @@ def asymmetric_setup(qubit_parameters={},
             key: val
             for key, val in zip(qubit_parameters[0], qubit_parameters[1])}
 
-    if seed is not None:
-        for qubit in qubit_parameters.values:
-            qubit['state'] = np.random.RandomState(seed)
+    if state is not None:
+        kwargs['state'] = state
+    elif seed is not None:
+        state = np.random.RandomState(seed)
+        kwargs['state'] = state
+    else:
+        raise ValueError('''
+            We require either a numpy.random.RandomState
+            or a non-null seed for a setup.''')
 
     qubit_list = qubit_parameters.keys()
     asym_setup = {
