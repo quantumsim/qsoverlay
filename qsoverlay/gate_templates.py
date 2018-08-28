@@ -226,7 +226,6 @@ ISwapRotation = {
         'gate_time': 'ISwap_gate_time'
     },
     'circuit_args': {
-        'dephase_var': 'dephase_var',
         't2_enh':'t2_enh'#Initial enhanced T2 test
     },
     'user_kws': ['angle']
