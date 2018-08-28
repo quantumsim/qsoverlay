@@ -25,6 +25,7 @@ class Controller:
                  filename=None,
                  setup=None,
                  random_state=None,
+                 seed=None,
                  qubits=[],
                  circuits={},
                  circuit_lists={},
@@ -61,24 +62,19 @@ class Controller:
         self.angle_convert_matrices = angle_convert_matrices
         self.measurement_gates = measurement_gates
 
-        if random_state is None:
-            warnings.warn('No random state given, using system clock')
-            random_state = np.random.RandomState()
-        self.random_state = random_state
-
         if filename is not None:
 
-            self.load(filename, setup)
+            self.load(filename, setup, random_state, seed)
 
         self.make_state()
 
-    def load(self, filename, setup):
+    def load(self, filename, setup, random_state=None, seed=None):
 
         with open(filename, 'r') as infile:
             data = json.load(infile)
 
         if type(setup) == str:
-            setup = Setup(filename=setup)
+            setup = Setup(filename=setup, state=random_state, seed=seed)
 
         self.mbits = data['mbits']
         self.qubits = data['qubits']
