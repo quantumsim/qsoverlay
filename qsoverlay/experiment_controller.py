@@ -223,7 +223,8 @@ class Controller:
             rho_dist = self.state.peak_multiple_measurements(
                 measurement_model.qubits)
             data.append(measurement_model.sample(rho_dist,
-                        num_measurements, data_type=data_type, output_format=output_format))
+                        num_measurements, data_type=data_type,
+                        output_format=output_format))
         return data
 
     def get_expectation_values(self, msmts, num_repetitions=None):
