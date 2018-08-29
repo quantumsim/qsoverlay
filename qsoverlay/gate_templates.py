@@ -69,8 +69,8 @@ class GateData:
             'YGate': YGate,
             'ZGate': ZGate,
             'Measure': Measure,
-            'ISwap': ISwap,
             'ISwapRotation': ISwapRotation,
+            'ISwapNoisy': ISwapNoisy,
             'ResetGate': ResetGate,
             'Had': Had,
             'CNOT': CNOT,
@@ -205,19 +205,6 @@ Measure = {
     'user_kws': ['output_bit']
 }
 
-ISwap = {
-    'name': 'ISwap',
-    'function': quantumsim.circuit.ISwap,
-    'num_qubits': 2,
-    'builder_args': {
-        'gate_time': 'ISwap_gate_time'
-    },
-    'circuit_args': {
-        'dephase_var': 'dephase_var'
-    },
-    'user_kws': []
-}
-
 ISwapRotation = {
     'name': 'ISwapRotation',
     'function': quantumsim.circuit.ISwapRotation,
@@ -226,7 +213,21 @@ ISwapRotation = {
         'gate_time': 'ISwap_gate_time'
     },
     'circuit_args': {
-        't2_enh':'t2_enh'#Initial enhanced T2 test
+        't2_enh':'t2_enh',#Initial enhanced T2 test
+        'interaction_time':'interaction_time'#Duration of the iswap interaction
+    },
+    'user_kws': ['angle']
+}
+
+ISwapNoisy = {
+    'name': 'ISwapNoisy',
+    'function': quantumsim.circuit.ISwapNoisy,
+    'num_qubits': 2,
+    'builder_args': {
+        'gate_time': 'ISwap_gate_time'
+    },
+    'circuit_args': {
+        'dephase_var':'dephase_var'
     },
     'user_kws': ['angle']
 }
