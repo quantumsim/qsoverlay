@@ -1,30 +1,32 @@
-'''
+"""
 DiCarlo_setup: functions to return the parameters for noise and experimental
 design of DiCarlo qubits, in a format compatable with a circuit builder.
-'''
+"""
+import warnings
 
 import numpy as np
 from numpy import pi
-from quantumsim.circuit import uniform_noisy_sampler, uniform_sampler
-from .setup_functions import make_1q2q_gateset
-from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure,\
-                   ISwap, ISwapRotation, ResetGate, Had, CNOT, XGate, YGate, ZGate, CRX,\
-                   PrepGate
-from .update_functions import update_quasistatic_flux
+
+from quantumsim.circuit import (uniform_noisy_sampler, uniform_sampler,
+                                _ensure_rng)
 from .experiment_setup import Setup
+from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure, \
+    ISwap, ISwapRotation, ResetGate, Had, CNOT, XGate, YGate, ZGate, CRX, \
+    PrepGate
+from .setup_functions import make_1q2q_gateset
 
 
-def quick_setup(qubit_list,
-                connectivity_dic=None,
-                seed=None,
+def quick_setup(qubit_list, connectivity_dic=None, rng=None, *, seed=None,
                 **kwargs):
-    '''
+    """
     Quick setup: a function to return a setup that may be immediately
     used to make a qsoverlay builder.
 
     The setup file accepts the following parameters, defined in
     arXiv:1703:04136 (or elsewhere):
 
+    Parameters
+    ----------
     noise_flag(=True): turn on or off noise (for debugging)
     scale(=1): multiplier for t1,t2 (and divides other error rates
             by same amount)
@@ -101,16 +103,18 @@ def quick_setup(qubit_list,
                 arXiv:1801.07689, but currently without any error
                 in the reset itself).
     sampler(=None): sampler to generate measurement results.
-    seed(=None): seed to generate new sampler if the above is None.
+    rng(=None): seed to generate new sampler if the above is None.
     readout_error(=0.005): readout error in a sampler if the
                 above is None
                 (epsilon_{RO}^0=epsilon_{RO}^1 in
                  arXiv:1703.04136, App.B.6 Fig.9)
-    '''
-
-    if seed is not None:
-        state = np.random.RandomState(seed)
-        kwargs['state'] = state
+    """
+    if seed:
+        warnings.warn('`seed` keyword argument is deprecated,'
+                      ' please use `rng`', DeprecationWarning)
+        rng = seed
+    if 'sampler' not in kwargs.keys():
+        kwargs['state'] = _ensure_rng(rng)
 
     setup = {
         'gate_dic': get_gate_dic(),
@@ -131,11 +135,11 @@ def quick_setup(qubit_list,
     return Setup(**setup)
 
 
-def asymmetric_setup(qubit_parameters={},
+def asymmetric_setup(qubit_parameters=None,
                      connectivity_dic=None,
-                     seed=None,
-                     **kwargs):
-    '''
+                     rng=None,
+                     *, seed=None, **kwargs):
+    """
     Prepares a setup for asymmetric qubits that may be immediately used to make
     a qsoverlay builder
 
@@ -147,15 +151,20 @@ def asymmetric_setup(qubit_parameters={},
     [['q1', 'q2', .., 'qn'],[{'t1': value, 't2': value, ...},
     {'t1': value, 't2: value, ...}, ..., {'t1': value, 't2': value, ...}]]
     Unspecified parameters will take the default values from get_qubit function
-    '''
+    """
+    if qubit_parameters is None:
+        qubit_parameters = {}
     if type(qubit_parameters) == list:
         qubit_parameters = {
             key: val
             for key, val in zip(qubit_parameters[0], qubit_parameters[1])}
 
-    if seed is not None:
-        for qubit in qubit_parameters.values:
-            qubit['state'] = np.random.RandomState(seed)
+    if seed:
+        warnings.warn('`seed` keyword argument is deprecated,'
+                      ' please use `rng`', DeprecationWarning)
+        rng = seed
+    if 'sampler' not in kwargs.keys():
+        kwargs['state'] = _ensure_rng(rng)
 
     qubit_list = qubit_parameters.keys()
     asym_setup = {
@@ -177,12 +186,12 @@ def asymmetric_setup(qubit_parameters={},
 
 
 def get_gate_dic():
-    '''
+    """
     Returns the set of gates allowed on DiCarlo qubits.
     Measurement time is something that's still being optimized,
     so this might change.
     (msmt_time = the total time taken for measurement + depletion)
-    '''
+    """
 
     # Initialise gate set with all allowed gates
     gate_dic = {
@@ -245,14 +254,14 @@ def get_qubit(noise_flag=True,
               sampler=None,
               readout_error=0.005,
               **kwargs):
-    '''
+    """
     The dictionary for parameters of the DiCarlo qubits, with standard
     parameters pre-set.
 
     This is a bit messy right now, but has the advantage of telling
     the user which parameters they can set. Not sure how to improve
     over this.
-    '''
+    """
     if sampler is None:
         if noise_flag is True:
             sampler = uniform_noisy_sampler(state=state,
@@ -328,6 +337,7 @@ def get_qubit(noise_flag=True,
     return param_dic
 
 
+# noinspection PyUnusedLocal
 def get_update_rules(**kwargs):
     update_rules = ['update_quasistatic_flux']
     return update_rules

@@ -1,3 +1,5 @@
+import pytest
+
 from qsoverlay.DiCarlo_setup import quick_setup, get_gate_dic, get_qubit,\
     get_update_rules
 import numpy as np
@@ -36,7 +38,9 @@ class TestSetup:
 
     def test_quick_setup_1q(self):
         qubit_list = ['q_test']
-        setup = quick_setup(qubit_list)
+        with pytest.warns(UserWarning):
+            # We did not provide any seed
+            setup = quick_setup(qubit_list)
         assert hasattr(setup, 'gate_set')
         assert hasattr(setup, 'update_rules')
         assert hasattr(setup, 'qubit_dic')
@@ -76,7 +80,9 @@ class TestSetup:
 
     def test_quick_setup_2q(self):
         qubit_list = ['q0', 'q1']
-        setup = quick_setup(qubit_list)
+        with pytest.warns(UserWarning):
+            # We did not provide any seed
+            setup = quick_setup(qubit_list)
         assert 'q0' in setup.qubit_dic.keys()
         assert 'q1' in setup.qubit_dic.keys()
         assert len(setup.qubit_dic.keys()) == 2

@@ -36,7 +36,9 @@ class Setup:
         # uniform_noisy_sampler - this needs fixing
 
         if seed is None and state is None:
-            seed = list(self.qubit_dic.values())[0]['seed']
+            raise ValueError('''
+                We require either a numpy.random.RandomState
+                or a non-null seed for a setup.''')
         readout_error = list(self.qubit_dic.values())[0]['readout_error']
         sampler = uniform_noisy_sampler(
             seed=seed, state=state, readout_error=readout_error)
