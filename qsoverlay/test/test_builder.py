@@ -53,7 +53,9 @@ class TestBuilder:
 
     def test_make_perfect_bell(self):
         qubit_list = ['swap', 'cp']
-        setup = quick_setup(qubit_list, noise_flag=False)
+        with pytest.warns(UserWarning):
+            # We did not provide any seed
+            setup = quick_setup(qubit_list, noise_flag=False)
         b = Builder(setup)
         b.add_gate('RotateY', ['swap'], angle=np.pi/2)
         b.add_gate('RotateY', ['cp'], angle=np.pi/2)
@@ -73,7 +75,9 @@ class TestBuilder:
 
     def test_override(self):
         qubit_list = ['swap', 'cp']
-        setup = quick_setup(qubit_list, noise_flag=False)
+        with pytest.warns(UserWarning):
+            # We did not provide any seed
+            setup = quick_setup(qubit_list, noise_flag=False)
         b = Builder(setup)
         b < ('RotateY', 'swap', np.pi/2)
         b < ('RotateY', 'cp', np.pi/2)
@@ -93,7 +97,9 @@ class TestBuilder:
 
     def test_qasm(self):
         qubit_list = ['swap', 'cp']
-        setup = quick_setup(qubit_list, noise_flag=False)
+        with pytest.warns(UserWarning):
+            # We did not provide any seed
+            setup = quick_setup(qubit_list, noise_flag=False)
         b = Builder(setup)
         qasm0 = 'Ry 1.57079632679 swap'
         qasm1 = 'Ry 1.57079632679 cp'
@@ -115,7 +121,9 @@ class TestBuilder:
 
     def test_make_imperfect_bell(self):
         qubit_list = ['swap', 'cp']
-        setup = quick_setup(qubit_list)
+        with pytest.warns(UserWarning):
+            # We did not provide any seed
+            setup = quick_setup(qubit_list)
         b = Builder(setup)
         b.add_gate('RotateY', ['swap'], angle=np.pi/2)
         b.add_gate('RotateY', ['cp'], angle=np.pi/2)
