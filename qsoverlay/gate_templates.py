@@ -1,4 +1,4 @@
-'''
+"""
 gate_templates: dictionaries of gate templates for use in a qsoverlay builder.
 
 A gate template is a prototype gate (as opposed to a gate, which has a
@@ -15,7 +15,7 @@ by a dictionary, containing the following information:
     parameters in the gate template (so that we can find them), and
     occasionally some gate parameters (e.g. for a composite gate
     the gate time should be set to 0).
-'''
+"""
 
 import quantumsim.circuit
 from .gate_functions import (
@@ -24,15 +24,14 @@ from .gate_functions import (
     CRX_from_CZ, insert_reset)
 
 
-def make_gate(function, num_qubits, gate_time_label, **kwargs):
-
-    '''
+def make_gate(func, num_qubits, gate_time_label, **kwargs):
+    """
     Helper function to make a legitimate
     gate for processing in a circuit builder.
-    '''
+    """
 
     gate_template = {
-        'function': function,
+        'function': func,
         'num_qubits': num_qubits,
         'builder_args': {
             'gate_time': gate_time_label
@@ -52,6 +51,7 @@ def make_gate(function, num_qubits, gate_time_label, **kwargs):
         gate_template['user_kws'] = kwargs['user_kws']
 
     return {**gate_template, **kwargs}
+
 
 # A labeled list of all gates to be found below.
 # As this eventually contains functions, I don't know
@@ -74,7 +74,7 @@ class GateData:
             'ResetGate': ResetGate,
             'Had': Had,
             'CNOT': CNOT,
-            'CRX': CRX 
+            'CRX': CRX
         }
 
 

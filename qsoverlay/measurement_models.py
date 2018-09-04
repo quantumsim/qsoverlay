@@ -1,11 +1,11 @@
-'''
+"""
 Measurement_model:
 qsoverlay measurement models are separate to the measurement function in
 quantumsim. In particular, these are designed to not have to worry about
 repeatedly preparing a state and sampling it for measurement, and to
 take care of measurement crosstalk. Later they should possibly be included in
 quantumsim.
-'''
+"""
 import numpy as np
 
 
@@ -13,7 +13,7 @@ class CorrelatedMeasurement:
     def __init__(self, qubits,
                  cc_matrix, populations,
                  random_state):
-        '''
+        """
         A class to provide (currently) correlated
         measurement that includes measurement crosstalk.
 
@@ -25,7 +25,7 @@ class CorrelatedMeasurement:
             account residual population.
         @populations: the residual excitations of the qubits
             in order.
-        '''
+        """
 
         self.qubits = qubits
         self.num_qubits = len(qubits)
@@ -55,14 +55,15 @@ class CorrelatedMeasurement:
 
     def sample(self, rho_dist,
                num_measurements,
-               data_type='shots',# If averages put single_shot to False in tomo
+               data_type='shots',  # If averages put single_shot to False in
+                                   # tomo
                output_format='full'):
-        '''
+        """
         Calculates the true distribution of measurements from the
         peak_multiple_measurement function given in quantumsim,
         and generates a sampling of num_measurements measurements
         from this distribution.
-        '''
+        """
         # rho_vec will hold the leading diagonal of the density matrix
         # (This is horribly inefficient, should be directly integrated
         # with quantumsim.)
@@ -105,13 +106,14 @@ class CorrelatedMeasurement:
         else:
             measurements = M_vec
             if output_format is not 'full':
-                measurements = [sum([m for j,m in enumerate(measurements)
+                measurements = [sum([m for j, m in enumerate(measurements)
                                      if self.indices_in_j(indices, j)])
                                 for indices in output_format]
 
         return measurements
 
-    def indices_in_j(self, indices, j):
+    @staticmethod
+    def indices_in_j(indices, j):
         n = 0
         while j > 0:
             if n in indices and j % 2 == 0:

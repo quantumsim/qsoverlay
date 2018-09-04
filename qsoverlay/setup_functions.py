@@ -1,9 +1,7 @@
-'''
+"""
 setup_functions: functions to assist in creating a setup file
 for a qsoverlay circuit builder.
-'''
 
-'''
 Gate-set creation:
 
 A gate_set is a dictionary of allowed gates for a circuit,
@@ -20,10 +18,11 @@ user, and pushed to quantumsim.
 
 The following functions provide some assistance in gate-set
 creation.
-'''
+"""
+
 
 def fill_gateset(qubit_dic, gate_dic, gate_set):
-    '''
+    """
     A function to fill a pre-existing gate set
     with gate/qubit parameters (so that one may
     say, define a restricted set of 2-qubit gates
@@ -36,7 +35,7 @@ def fill_gateset(qubit_dic, gate_dic, gate_set):
     same. This can be adjusted before or after within
     the gate set (parameters that are preset in the
     gate set beforehand will not be overwritten here).
-    '''
+    """
 
     for gate_instance, [circuit_args, builder_args] in gate_set.items():
 
@@ -64,13 +63,13 @@ def fill_gateset(qubit_dic, gate_dic, gate_set):
 
 def make_1q2q_gateset(qubit_dic, gate_dic, connectivity_dic=None):
 
-    '''
+    """
     A function to make a full set of 1 and 2 qubit
     gates given a qubit_dic and a gate_dic.
 
     This then assumes that a) the system is symmetric,
     and b) the system has full connectivity.
-    '''
+    """
 
     # Make gate set
     gate_set = {}
