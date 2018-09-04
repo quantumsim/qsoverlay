@@ -1,17 +1,18 @@
-'''
+"""
 Experiment_controller: A controller to take one or more quantumsim circuits
 and run them as black boxes, i.e. to create states, apply circuits, measure
 states (single-shot or generate statistics), update circuit parameters (i.e.
 for a VQE).
-'''
+"""
 
-from quantumsim.sparsedm import SparseDM
-from quantumsim.circuit import Measurement
+import json
+
 import numpy as np
+
+from quantumsim.circuit import Measurement
+from quantumsim.sparsedm import SparseDM
 from .circuit_builder import Builder
 from .experiment_setup import Setup
-import json
-import warnings
 
 sx = np.array([[0, 1], [1, 0]])
 sy = np.array([[0, -1j], [1j, 0]])
@@ -20,21 +21,22 @@ s0 = np.array([[1, 0], [0, 1]])
 pauli_dic = {1: s0, 'X': sx, 'Y': sy, 'Z': sz}
 
 
+# noinspection PyStatementEffect
 class Controller:
     def __init__(self,
                  filename=None,
                  setup=None,
                  random_state=None,
                  seed=None,
-                 qubits=[],
-                 circuits={},
-                 circuit_lists={},
-                 adjust_gates={},
-                 measurement_gates={},
-                 angle_convert_matrices={},
-                 mbits=[]):
+                 qubits=None,
+                 circuits=None,
+                 circuit_lists=None,
+                 adjust_gates=None,
+                 measurement_gates=None,
+                 angle_convert_matrices=None,
+                 mbits=None):
 
-        '''
+        """
         qubits: list of qubits in the experiment
         mbits: the set of bits to receive measurements
         circuits: dictionary of circuits to apply to a state
@@ -47,23 +49,23 @@ class Controller:
             the circuit.
         measurement_gates: a set of Measurement type operators
             to extract extra details about the measurements made.
-        '''
+        """
 
-        if 'record' in circuits:
+        self.circuits = circuits or {}
+        self.circuit_lists = circuit_lists or {}
+        if 'record' in self.circuits:
             raise ValueError('record is a protected keyword')
-
-        self.mbits = mbits
-        self.qubits = qubits
-        if any([type(c) == int for c in circuits]):
+        if any([type(c) == int for c in self.circuits]):
             raise ValueError('Circuits must not use integers for labels')
-        self.circuits = circuits
-        self.circuit_lists = circuit_lists
-        self.adjust_gates = adjust_gates
-        self.angle_convert_matrices = angle_convert_matrices
-        self.measurement_gates = measurement_gates
+
+        self.mbits = mbits or []
+        self.qubits = qubits or []
+        self.adjust_gates = adjust_gates or {}
+        self.angle_convert_matrices = angle_convert_matrices or {}
+        self.measurement_gates = measurement_gates or {}
+        self.state = None
 
         if filename is not None:
-
             self.load(filename, setup, random_state, seed)
 
         self.make_state()
@@ -97,7 +99,7 @@ class Controller:
                 ag for ag in adjust_gates
                 if type(ag) is Measurement]
             if name in data['angle_convert_matrices']:
-                self.angle_convert_matrices =\
+                self.angle_convert_matrices = \
                     data['angle_convert_matrices'][name]
 
     def save(self, filename):
@@ -113,15 +115,15 @@ class Controller:
         with open(filename, 'w') as outfile:
             json.dump(data, outfile)
 
-    def make_state(self, dense_qubits=[]):
-
-        self.state = SparseDM(self.qubits+self.mbits)
-        for qubit in dense_qubits:
-            self.state.ensure_dense(qubit)
+    def make_state(self, dense_qubits=None):
+        self.state = SparseDM(self.qubits + self.mbits)
+        if dense_qubits is not None:
+            for qubit in dense_qubits:
+                self.state.ensure_dense(qubit)
 
     def apply_circuit(self, circuit):
 
-        '''
+        """
         Applies a circuit to the state.
 
         Each entry is either:
@@ -134,7 +136,7 @@ class Controller:
             store the current value of.
         d) a pair (n, circuit), where circuit is one of the above,
             and n is the number of times to repeat the circuit.
-        '''
+        """
 
         # Record is a reserved keyword to copy the output
         # from a set of classical bits to return to the user.
@@ -184,11 +186,11 @@ class Controller:
         self.apply_circuit(circuit)
 
     def apply_circuit_list(self, circuit_list):
-        '''
+        """
         Apply a set of operations to a state.
 
         circuit_list: a list of circuits to apply.
-        '''
+        """
         output_list = []
         for circuit in circuit_list:
 
@@ -205,11 +207,11 @@ class Controller:
                       measurement_model,
                       num_measurements,
                       output_format, data_type):
-        '''
+        """
         Takes the current system state, copies it,
         applies multiple tomography circuits, and runs them through
         models for the measurement to return thresholded voltages.
-        '''
+        """
         data = []
         for tomo_circuit in tomo_circuits:
             self.make_state()
@@ -218,12 +220,13 @@ class Controller:
             self.state.renormalize()
             rho_dist = self.state.peak_multiple_measurements(
                 measurement_model.qubits)
-            data.append(measurement_model.sample(rho_dist,
-                        num_measurements, data_type=data_type, output_format=output_format))
+            data.append(measurement_model.sample(
+                rho_dist, num_measurements, data_type=data_type,
+                output_format=output_format))
         return data
 
     def get_expectation_values(self, msmts, num_repetitions=None):
-        '''
+        """
         Measures a set of Pauli strings on the current state.
         If num_repetitions is None this is performed perfectly.
         Otherwise, we treat the calculated value as a bernoulli
@@ -232,7 +235,7 @@ class Controller:
 
         input: msmts: list of measurement dictionaries, containing
         'X', 'Y', or 'Z' for each non-trivial qubit label.
-        '''
+        """
 
         results = []
         self.state.apply_all_pending()
@@ -248,7 +251,7 @@ class Controller:
             for qubit in msmt:
                 if qubit not in self.state.idx_in_full_dm:
                     if msmt[qubit] == 'Z':
-                        mult *= (-1)**self.state.classical[qubit]
+                        mult *= (-1) ** self.state.classical[qubit]
                     elif msmt[qubit] in ['X', 'Y']:
                         mult = 0
                     else:
@@ -267,21 +270,23 @@ class Controller:
             result = float(np.real(result))
 
             if num_repetitions is not None:
-                bernoulli_rv = (1 - result)/2
-                if bernoulli_rv <= 0 and bernoulli_rv > -1e-6:
+                bernoulli_rv = (1 - result) / 2
+                if -1e-6 < bernoulli_rv <= 0:
                     noisy_result = 0
-                elif bernoulli_rv >= 1 and bernoulli_rv <= 1+1e-6:
+                elif 1 <= bernoulli_rv < 1 + 1e-6:
                     noisy_result = 1
                 else:
                     try:
                         noisy_result = np.random.beta(bernoulli_rv *
                                                       num_repetitions,
-                                                      (1-bernoulli_rv) *
+                                                      (1 - bernoulli_rv) *
                                                       num_repetitions)
-                    except:
-                        raise ValueError('My bernoulli random variable is weird: {}'.format(bernoulli_rv))
+                    except Exception:
+                        raise ValueError(
+                            'My bernoulli random variable is weird: {}'
+                            .format(bernoulli_rv))
 
-                results.append(1-2*noisy_result)
+                results.append(1 - 2 * noisy_result)
             else:
                 results.append(result)
 
@@ -289,11 +294,11 @@ class Controller:
 
     def get_prob_all_zero(self, qubits):
 
-        '''
+        """
         Returns the probability that all qubits in qubits
         will return a 0 measurement (regardless of any other qubit
         measurement).
-        '''
+        """
 
         self.state.apply_all_pending()
         self.state.renormalize()
@@ -302,4 +307,4 @@ class Controller:
         diagonal = self.state.full_dm.get_diag()
 
         return sum([x for j, x in enumerate(diagonal) if
-                    all([(j//2**i) % 2 == 0 for i in indices])])
+                    all([(j // 2 ** i) % 2 == 0 for i in indices])])

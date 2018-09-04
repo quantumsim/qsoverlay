@@ -1,4 +1,4 @@
-'''
+"""
 circuit_builder: an overlay for quantumsim to build circuits slightly easier.
 Assumes a gate set for a system, and inserts new gates end-on, keeping track
 of at what time the next gate can be executed.
@@ -6,7 +6,7 @@ of at what time the next gate can be executed.
 Does not do any compilation; this should possibly be inserted later.
 
 TODO: fix up return_flag
-'''
+"""
 
 import numpy as np
 import quantumsim.circuit
@@ -18,10 +18,10 @@ class Builder:
 
     def __init__(self,
                  setup=None,
-                 qubit_dic={},
-                 gate_dic={},
-                 gate_set={},
-                 update_rules=[],
+                 qubit_dic=None,
+                 gate_dic=None,
+                 gate_set=None,
+                 update_rules=None,
                  **kwargs):
         '''
         qubit_dic: list of the qubits in the system.
@@ -49,10 +49,10 @@ class Builder:
             self.gate_set = setup.gate_set
             self.update_rules = setup.update_rules
         else:
-            self.qubit_dic = qubit_dic
-            self.gate_dic = gate_dic
-            self.gate_set = gate_set
-            self.update_rules = update_rules
+            self.qubit_dic = qubit_dic or {}
+            self.gate_dic = gate_dic or {}
+            self.gate_set = gate_set or {}
+            self.update_rules = update_rules or []
 
         self.save_flag = True
         self.new_circuit(**kwargs)
@@ -244,7 +244,7 @@ class Builder:
     def add_gate(self, gate_name,
                  qubit_list, return_flag=False,
                  **kwargs):
-        '''
+        """
         Adds a gate at the appropriate time to our system.
         The gate is always added in the middle of the time period
         in which it occurs.
@@ -257,7 +257,7 @@ class Builder:
                 angles for a rotation gate.
             Note: times, or error parameters that can be obtained
                 from a qubit will be ignored.
-        '''
+        """
 
         # The gate tuple is a unique identifier for the gate, allowing
         # for asymmetry (as opposed to the name of the gate, which is
@@ -354,14 +354,14 @@ class Builder:
             update_function_dic[rule](self, **kwargs)
 
     def finalize(self, topo_order=False, t_add=0):
-        '''
+        """
         Adds resting gates to all systems as required.
         quantumsim currently assumes fixed values for photon
         numbers, so we take them from a random qubit
 
         Photons in quantumsim are currently broken, so
         they're not in here right now.
-        '''
+        """
 
         circuit_time = max(self.times.values())
         if type(t_add) == dict:

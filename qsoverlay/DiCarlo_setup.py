@@ -15,6 +15,10 @@ from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure, \
     PrepGate
 from .setup_functions import make_1q2q_gateset
 
+# Computations are not reproducible, won't fix (here, Quantumsim will get this
+# functionality with reproducible computations)
+warnings.simplefilter('ignore', UserWarning)
+
 
 def quick_setup(qubit_list, connectivity_dic=None, rng=None, *, seed=None,
                 **kwargs):
