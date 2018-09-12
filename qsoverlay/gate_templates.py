@@ -25,7 +25,6 @@ from .gate_functions import (
 
 
 def make_gate(function, num_qubits, gate_time_label, **kwargs):
-
     '''
     Helper function to make a legitimate
     gate for processing in a circuit builder.
@@ -56,6 +55,8 @@ def make_gate(function, num_qubits, gate_time_label, **kwargs):
 # A labeled list of all gates to be found below.
 # As this eventually contains functions, I don't know
 # of a better way than hard-coding
+
+
 class GateData:
 
     def __init__(self):
@@ -74,7 +75,7 @@ class GateData:
             'ResetGate': ResetGate,
             'Had': Had,
             'CNOT': CNOT,
-            'CRX': CRX 
+            'CRX': CRX
         }
 
 
@@ -212,9 +213,13 @@ ISwapRotation = {
     'builder_args': {
         'gate_time': 'ISwap_gate_time'
     },
-    'circuit_args': {
-        't2_enh':'t2_enh',#Initial enhanced T2 test
-        'interaction_time':'interaction_time'#Duration of the iswap interaction
+    'circuit_args':
+    {
+        't2_bit0_dec': 't2_bit0_dec',  # Initial enhanced T2 test
+        'interaction_time': 'interaction_time',  # Duration of the iswap interaction
+        't1_bit0': 't1_bit0',
+        't1_bit1': 't1_bit1',
+        't2_bit1': 't2_bit1'
     },
     'user_kws': ['angle']
 }
@@ -227,7 +232,7 @@ ISwapNoisy = {
         'gate_time': 'ISwap_gate_time'
     },
     'circuit_args': {
-        'dephase_var':'dephase_var'
+        'dephase_var': 'dephase_var'
     },
     'user_kws': ['angle']
 }

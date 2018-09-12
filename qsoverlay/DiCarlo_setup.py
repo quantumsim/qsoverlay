@@ -8,8 +8,8 @@ from numpy import pi
 from quantumsim.circuit import uniform_noisy_sampler, uniform_sampler
 from .setup_functions import make_1q2q_gateset
 from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure,\
-                   ISwapRotation, ISwapNoisy, ResetGate, Had, CNOT, XGate, YGate, ZGate, CRX,\
-                   PrepGate
+                   ISwapRotation, ISwapNoisy, ResetGate, Had, CNOT, XGate,\
+                   YGate, ZGate, CRX, PrepGate
 from .update_functions import update_quasistatic_flux
 from .experiment_setup import Setup
 
@@ -200,8 +200,8 @@ def get_gate_dic():
         'Rz': RotateZ,
         'Measure': Measure,
         'ISwapRotation': ISwapRotation,
-        'ISwapNoisy': ISwapNoisy
- ,      'prepz': PrepGate,
+        'ISwapNoisy': ISwapNoisy,
+        'prepz': PrepGate,
         'PrepGate': PrepGate,
         'ResetGate': ResetGate,
         'Reset': ResetGate,
@@ -221,7 +221,10 @@ def get_qubit(noise_flag=True,
               scale=1,
               t1=30000,
               t2=30000,
-              t2_enh=None,
+              t1_bit0=None,
+              t2_bit0_dec=None,
+              t1_bit1=None,
+              t2_bit1=None,
               interaction_time=0,
               dephasing_axis=1e-4,
               dephasing_angle=5e-4,
@@ -273,8 +276,11 @@ def get_qubit(noise_flag=True,
         param_dic = {
             't1': t1/scale,
             't2': t2/scale,
-            't2_enh':t2_enh,
-            'interaction_time':interaction_time,
+            't1_bit0': t1_bit0,
+            't2_bit0_dec': t2_bit0_dec,
+            't1_bit1': t1_bit1,
+            't2_bit1': t2_bit1,
+            'interaction_time': interaction_time,
             'dephasing_axis': dephasing_axis*scale,
             'dephasing': dephasing*scale,
             'dephasing_angle': dephasing_angle*scale,
@@ -304,8 +310,11 @@ def get_qubit(noise_flag=True,
         param_dic = {
             't1': np.inf,
             't2': np.inf,
-            't2_enh':None,
-            'interaction_time':0,
+            't1_bit0': None,
+            't2_bit0_dec': None,
+            't1_bit1': None,
+            't2_bit1': None,
+            'interaction_time': 0,
             'dephasing_axis': 0,
             'dephasing': 0,
             'dephasing_angle': 0,
