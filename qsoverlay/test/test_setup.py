@@ -6,57 +6,6 @@ from qsoverlay.experiment_setup import Setup
 import numpy as np
 import tempfile
 
-class FuzzyDict(object):
-    def __init__(self, iterable, float_eq):
-        self._float_eq = float_eq
-        self._dict = dict(iterable)
-
-    def __getitem__(self, key):
-        return self._dict[key]
-
-    def __setitem__(self, key, val):
-        self._dict[key] = val
-
-    def __iter__(self):
-        return iter(self._dict)
-
-    def __len__(self):
-        return len(self._dict)
-
-    def __contains__(self, key):
-        return key in self._dict
-
-    def __eq__(self, other):
-        def compare(a, b):
-            if isinstance(a, float) and isinstance(b, float):
-                out = self._float_eq(a, b)
-            else:
-                out = a == b
-            if not out:
-                print('{} and {} are different'.format(a, b))
-            return out
-        try:
-            if len(self) != len(other):
-                return False
-            for key in self:
-                if not compare(self[key], other[key]):
-                    return False
-            return True
-        except Exception:
-            return False
-
-    def __getattr__(self, attr):
-        # free features borrowed from dict
-        attr_val = getattr(self._dict, attr)
-        if callable(attr_val):
-            def wrapper(*args, **kwargs):
-                result = attr_val(*args, **kwargs)
-                if isinstance(result, dict):
-                    return FuzzyDict(result, self._float_eq)
-                return result
-            return wrapper
-        return attr_val
-
 
 class TestSetup:
 
@@ -173,5 +122,5 @@ class TestSetup:
             b = Setup(filename=f.name, state=rng)
 
         for name in ('gate_dic', 'qubit_dic', 'gate_set'):
-            assert a.__dict__[name]== b.__dict__[name]
+            assert a.__dict__[name] == b.__dict__[name]
         assert a.update_rules == b.update_rules
