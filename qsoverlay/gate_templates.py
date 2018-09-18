@@ -65,6 +65,7 @@ class GateData:
             'RotateX': RotateX,
             'RotateY': RotateY,
             'RotateZ': RotateZ,
+            'RotateXY': RotateXY,
             'RotateEuler': RotateEuler,
             'XGate': XGate,
             'YGate': YGate,
@@ -117,7 +118,7 @@ RotateEuler = {
         'gate_time': 'oneq_gate_time'
     },
     'circuit_args': {},
-    'user_kws': ['theta', 'phi', 'lamda']
+    'user_kws': ['phi', 'theta', 'lamda']
 }
 
 RotateX = {
@@ -146,6 +147,20 @@ RotateY = {
         'dephasing_angle': 'dephasing_angle'
     },
     'user_kws': ['angle']
+}
+
+RotateXY = {
+    'name': 'RotateXY',
+    'function': quantumsim.circuit.RotateXY,
+    'num_qubits': 1,
+    'builder_args': {
+        'gate_time': 'oneq_gate_time'
+    },
+    'circuit_args': {
+        'dephasing_axis': 'dephasing_axis',
+        'dephasing_angle': 'dephasing_angle'
+    },
+    'user_kws': ['phi', 'theta']
 }
 
 RotateZ = {
