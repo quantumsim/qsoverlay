@@ -4,8 +4,6 @@ Assumes a gate set for a system, and inserts new gates end-on, keeping track
 of at what time the next gate can be executed.
 
 Does not do any compilation; this should possibly be inserted later.
-
-TODO: fix up return_flag
 '''
 
 import numpy as np
@@ -222,6 +220,10 @@ class Builder:
         return adjustable_gates
 
     def __lt__(self, gate_desc):
+
+        if type(gate_desc[0]) is not str:
+            return self.add_gates_simultaneous(gate_desc)
+
         gate_name = gate_desc[0]
 
         num_qubits = self.gate_dic[gate_name]['num_qubits']
@@ -240,6 +242,25 @@ class Builder:
 
         return self.add_gate(gate_name, qubit_list,
                              return_flag=return_flag, **kwargs)
+
+    def add_gates_simultaneous(self, gate_descriptions):
+        '''
+        takes a set of gate descriptions and begins the gates
+        at the same time.
+        '''
+        starting_time = max([
+            self.times[gate_desc[j]]
+            for gate_desc in gate_descriptions
+            for j in range(1, self.gate_dic[gate_desc[0]]['num_qubits']+1)])
+
+        for gate_desc in gate_descriptions:
+            num_qubits = self.gate_dic[gate_desc[0]]['num_qubits']
+            qubit_list = gate_desc[1:num_qubits + 1]
+            for qubit in qubit_list:
+                self.times[qubit] = starting_time
+
+        for gate_desc in gate_descriptions:
+            gate_desc > self
 
     def add_gate(self, gate_name,
                  qubit_list, return_flag=False,

@@ -140,3 +140,14 @@ class TestBuilder:
         assert np.abs(diag[3]-0.5) < 1e-2
         assert np.abs(diag[1]) < 3e-2
         assert np.abs(diag[2]) < 3e-2
+
+    def test_simultaneous_gates(self):
+        qubit_list = ['q0', 'q1']
+        with pytest.warns(UserWarning):
+            # We did not provide any seed
+            setup = quick_setup(qubit_list)
+        b = Builder(setup)
+        b < ('RY', 'q0', np.pi/2)
+        b < (('RY', 'q0', np.pi/2), ('RY', 'q1', np.pi/2))
+        assert b.circuit.gates[-2].time == b.circuit.gates[-1].time
+        assert b.times['q0'] == b.times['q1']
