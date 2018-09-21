@@ -2,7 +2,9 @@ import pytest
 
 from qsoverlay.DiCarlo_setup import quick_setup, get_gate_dic, get_qubit,\
     get_update_rules
+from qsoverlay.experiment_setup import Setup
 import numpy as np
+import tempfile
 
 
 class TestSetup:
@@ -106,3 +108,19 @@ class TestSetup:
                         setup.gate_set[(gate_name, 'q0', 'q1')][1][kw0]
                     assert setup.qubit_dic['q1'][kw1] ==\
                         setup.gate_set[(gate_name, 'q1', 'q0')][1][kw0]
+
+    @pytest.mark.xfail
+    def test_save_load(self):
+        rng = np.random.RandomState(42)
+        qubit_list = ['q1', 'q2']
+        connectivity_dic = {'q1': ['q2'], 'q2':['q1']}
+        a = quick_setup(qubit_list=qubit_list,
+                        connectivity_dic=connectivity_dic,
+                        rng=rng)
+        with tempfile.NamedTemporaryFile() as f:
+            a.save(filename=f.name)
+            b = Setup(filename=f.name, state=rng)
+
+        for name in ('gate_dic', 'qubit_dic', 'gate_set'):
+            assert a.__dict__[name] == b.__dict__[name]
+        assert a.update_rules == b.update_rules

@@ -1,9 +1,9 @@
-'''
+"""
 Setup: a class to make and store setup files.
 Setup files contain the experimental details required by
 quantumsim to simulate actual quantum hardware given a
 circuit (i.e. as a theorist would define).
-'''
+"""
 import json
 from .gate_templates import GateData
 from quantumsim.circuit import uniform_noisy_sampler
@@ -14,16 +14,16 @@ class Setup:
     def __init__(
             self, filename=None,
             seed=None, state=None,
-            gate_dic={}, update_rules=[],
-            qubit_dic={}, gate_set={}):
+            gate_dic=None, update_rules=None,
+            qubit_dic=None, gate_set=None):
 
         if filename is not None:
             self.load(filename, seed, state)
         else:
-            self.gate_dic = gate_dic
-            self.update_rules = update_rules
-            self.qubit_dic = qubit_dic
-            self.gate_set = gate_set
+            self.gate_dic = gate_dic or {}
+            self.update_rules = update_rules or []
+            self.qubit_dic = qubit_dic or {}
+            self.gate_set = gate_set or {}
 
     def load(self, filename, seed=None, state=None):
         with open(filename, 'r') as infile:

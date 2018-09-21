@@ -1,7 +1,7 @@
-'''
+"""
 DiCarlo_setup: functions to return the parameters for noise and experimental
 design of DiCarlo qubits, in a format compatable with a circuit builder.
-'''
+"""
 
 # Parameters to insert
 # RB numbers - 98 - 99.9 - mostly decoherence limited
@@ -106,6 +106,7 @@ def get_qubit(noise_flag=True,
               sampler=None,
               seed=None,
               readout_error=0.02,
+              static_flux_std=None,
               **kwargs):
     '''
     The dictionary for parameters of the DiCarlo qubits, with standard

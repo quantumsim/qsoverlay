@@ -10,10 +10,12 @@ from numpy import pi
 from quantumsim.circuit import (uniform_noisy_sampler, uniform_sampler,
                                 _ensure_rng)
 from .experiment_setup import Setup
-from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure, \
-    ISwap, ISwapRotation, ResetGate, Had, CNOT, XGate, YGate, ZGate, CRX, \
-    PrepGate
+from . import gate_templates as gt
 from .setup_functions import make_1q2q_gateset
+
+# Computations are not reproducible, won't fix (here, Quantumsim will get this
+# functionality with reproducible computations)
+warnings.simplefilter('ignore', UserWarning)
 
 
 def quick_setup(qubit_list, connectivity_dic=None, rng=None, *, seed=None,
@@ -195,32 +197,36 @@ def get_gate_dic():
 
     # Initialise gate set with all allowed gates
     gate_dic = {
-        'CZ': CZ,
-        'C-Phase': CPhase,
-        'CPhase': CPhase,
-        'RotateX': RotateX,
-        'RX': RotateX,
-        'Rx': RotateX,
-        'RotateY': RotateY,
-        'RY': RotateY,
-        'Ry': RotateY,
-        'RotateZ': RotateZ,
-        'RZ': RotateZ,
-        'Rz': RotateZ,
-        'Measure': Measure,
-        'ISwap': ISwap,
-        'ISwapRotation': ISwapRotation,
-        'prepz': PrepGate,
-        'PrepGate': PrepGate,
-        'ResetGate': ResetGate,
-        'Reset': ResetGate,
-        'Had': Had,
-        'H': Had,
-        'CNOT': CNOT,
-        'CRX': CRX,
-        'X': XGate,
-        'Y': YGate,
-        'Z': ZGate
+        'CZ': gt.CZ,
+        'C-Phase': gt.CPhase,
+        'CPhase': gt.CPhase,
+        'RotateX': gt.RotateX,
+        'RX': gt.RotateX,
+        'Rx': gt.RotateX,
+        'RotateY': gt.RotateY,
+        'RY': gt.RotateY,
+        'Ry': gt.RotateY,
+        'RotateZ': gt.RotateZ,
+        'RZ': gt.RotateZ,
+        'Rz': gt.RotateZ,
+        'RotateXY': gt.RotateXY,
+        'RXY': gt.RotateXY,
+        'Rxy': gt.RotateXY,
+        'RotateEuler': gt.RotateEuler,
+        'Measure': gt.Measure,
+        'ISwap': gt.ISwap,
+        'ISwapRotation': gt.ISwapRotation,
+        'prepz': gt.PrepGate,
+        'PrepGate': gt.PrepGate,
+        'ResetGate': gt.ResetGate,
+        'Reset': gt.ResetGate,
+        'Had': gt.Had,
+        'H': gt.Had,
+        'CNOT': gt.CNOT,
+        'CRX': gt.CRX,
+        'X': gt.XGate,
+        'Y': gt.YGate,
+        'Z': gt.ZGate
     }
 
     return gate_dic
