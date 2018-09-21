@@ -296,15 +296,19 @@ class Builder:
         # Find the length of the gate
         gate_time = builder_args['gate_time']
 
-        # Calculate when to apply the gate
-        time = max(self.times[qubit] for qubit in qubit_list)
-        try:
-            kwargs['time'] = time + builder_args['exec_time']
+        if 'time' in kwargs:
+            time_flag = True
+        else:
+            time_flag = False
+            # Calculate when to apply the gate
+            time = max(self.times[qubit] for qubit in qubit_list)
+            try:
+                kwargs['time'] = time + builder_args['exec_time']
 
-        except:
-            # If we have no exec time, assume the gate occurs in the
-            # middle of the time window allocated.
-            kwargs['time'] = time + gate_time/2
+            except:
+                # If we have no exec time, assume the gate occurs in the
+                # middle of the time window allocated.
+                kwargs['time'] = time + gate_time/2
 
         # Add qubits to the kwargs as appropriate.
         # Note that we do *not* add classical bits here.
@@ -362,8 +366,11 @@ class Builder:
             raise
 
         # Update time on qubits after gate is created
-        for qubit in qubit_list:
-            self.times[qubit] = max(self.times[qubit], time + gate_time)
+        # We do not do this if the user specifies the time as this
+        # makes it impossible for us to properly account for the gate.
+        if time_flag is False:
+            for qubit in qubit_list:
+                self.times[qubit] = max(self.times[qubit], time + gate_time)
 
         # My current best idea for adjustable gates - return the
         # gate that could be adjusted to the user.
