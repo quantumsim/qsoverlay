@@ -134,7 +134,14 @@ def quick_setup(qubit_list, connectivity_dic=None, rng=None, *, seed=None,
     setup['gate_set'] = make_1q2q_gateset(qubit_dic=setup['qubit_dic'],
                                           gate_dic=setup['gate_dic'],
                                           connectivity_dic=connectivity_dic)
-    return Setup(**setup)
+
+    system_params = {
+        'uses_waiting_gates': True
+    }
+
+    setup = Setup(**setup, system_params=system_params)
+
+    return setup
 
 
 def asymmetric_setup(qubit_parameters=None,
