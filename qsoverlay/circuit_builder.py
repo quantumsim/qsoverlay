@@ -4,8 +4,6 @@ Assumes a gate set for a system, and inserts new gates end-on, keeping track
 of at what time the next gate can be executed.
 
 Does not do any compilation; this should possibly be inserted later.
-
-TODO: fix up return_flag
 """
 
 import numpy as np
@@ -197,6 +195,10 @@ class Builder:
         return adjustable_gates
 
     def __lt__(self, gate_desc):
+
+        if type(gate_desc[0]) is not str:
+            return self.add_gates_simultaneous(gate_desc)
+
         gate_name = gate_desc[0]
 
         num_qubits = self.setup.gate_dic[gate_name]['num_qubits']
@@ -215,6 +217,25 @@ class Builder:
 
         return self.add_gate(gate_name, qubit_list,
                              return_flag=return_flag, **kwargs)
+
+    def add_gates_simultaneous(self, gate_descriptions):
+        '''
+        takes a set of gate descriptions and begins the gates
+        at the same time.
+        '''
+        starting_time = max([
+            self.times[gate_desc[j]]
+            for gate_desc in gate_descriptions
+            for j in range(1, self.gate_dic[gate_desc[0]]['num_qubits']+1)])
+
+        for gate_desc in gate_descriptions:
+            num_qubits = self.gate_dic[gate_desc[0]]['num_qubits']
+            qubit_list = gate_desc[1:num_qubits + 1]
+            for qubit in qubit_list:
+                self.times[qubit] = starting_time
+
+        for gate_desc in gate_descriptions:
+            gate_desc > self
 
     def add_gate(self, gate_name,
                  qubit_list, return_flag=False,
@@ -250,15 +271,19 @@ class Builder:
         # Find the length of the gate
         gate_time = builder_args['gate_time']
 
-        # Calculate when to apply the gate
-        time = max(self.times[qubit] for qubit in qubit_list)
-        try:
-            kwargs['time'] = time + builder_args['exec_time']
+        if 'time' in kwargs:
+            time_flag = True
+        else:
+            time_flag = False
+            # Calculate when to apply the gate
+            time = max(self.times[qubit] for qubit in qubit_list)
+            try:
+                kwargs['time'] = time + builder_args['exec_time']
 
-        except:
-            # If we have no exec time, assume the gate occurs in the
-            # middle of the time window allocated.
-            kwargs['time'] = time + gate_time/2
+            except:
+                # If we have no exec time, assume the gate occurs in the
+                # middle of the time window allocated.
+                kwargs['time'] = time + gate_time/2
 
         # Add qubits to the kwargs as appropriate.
         # Note that we do *not* add classical bits here.
@@ -316,8 +341,11 @@ class Builder:
             raise
 
         # Update time on qubits after gate is created
-        for qubit in qubit_list:
-            self.times[qubit] = max(self.times[qubit], time + gate_time)
+        # We do not do this if the user specifies the time as this
+        # makes it impossible for us to properly account for the gate.
+        if time_flag is False:
+            for qubit in qubit_list:
+                self.times[qubit] = max(self.times[qubit], time + gate_time)
 
             # If this qubit has not been used before, store the start
             # of this gate as the first time it is activated.

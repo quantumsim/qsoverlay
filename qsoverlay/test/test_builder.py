@@ -176,3 +176,25 @@ class TestBuilder:
                     if 'q1' in gate.involved_qubits]) == sq_gate_time/2 + cp_gate_time/4
         assert max([gate.time for gate in b.circuit.gates
                     if 'q0' in gate.involved_qubits]) == sq_gate_time*3/2 + cp_gate_time*3/4
+        
+    def test_simultaneous_gates(self):
+        qubit_list = ['q0', 'q1']
+        with pytest.warns(UserWarning):
+            # We did not provide any seed
+            setup = quick_setup(qubit_list)
+        b = Builder(setup)
+        b < ('RY', 'q0', np.pi/2)
+        b < (('RY', 'q0', np.pi/2), ('RY', 'q1', np.pi/2))
+        assert b.circuit.gates[-2].time == b.circuit.gates[-1].time
+        assert b.times['q0'] == b.times['q1']
+
+    def test_artificial_time(self):
+        qubit_list = ['q0']
+        with pytest.warns(UserWarning):
+            # We did not provide any seed
+            setup = quick_setup(qubit_list)
+        b = Builder(setup)
+        b.add_gate('RY', ['q0'], angle=np.pi/2)
+        b.add_gate('RY', ['q0'], angle=np.pi/2, time=0)
+        assert b.times['q0'] == setup.gate_set[('RY', 'q0')][1]['gate_time']
+        assert b.circuit.gates[-1].time == 0
