@@ -1,4 +1,5 @@
-'''
+
+"""
 gate_templates: dictionaries of gate templates for use in a qsoverlay builder.
 
 A gate template is a prototype gate (as opposed to a gate, which has a
@@ -15,7 +16,7 @@ by a dictionary, containing the following information:
     parameters in the gate template (so that we can find them), and
     occasionally some gate parameters (e.g. for a composite gate
     the gate time should be set to 0).
-'''
+"""
 
 import quantumsim.circuit
 from .gate_functions import (
@@ -25,11 +26,11 @@ from .gate_functions import (
 
 
 def make_gate(function, num_qubits, gate_time_label, **kwargs):
-    '''
-    Helper function to make a legitimate
-    gate for processing in a circuit builder.
-    '''
+    """
+    Helper function to make a legitimate.
 
+    gate for processing in a circuit builder.
+    """
     gate_template = {
         'function': function,
         'num_qubits': num_qubits,
@@ -72,6 +73,7 @@ class GateData:
             'Measure': Measure,
             'ISwapRotation': ISwapRotation,
             'ISwapNoisy': ISwapNoisy,
+            'ISwapIncoherent': ISwapIncoherent,
             'ResetGate': ResetGate,
             'Had': Had,
             'CNOT': CNOT,
@@ -233,6 +235,25 @@ ISwapNoisy = {
     },
     'circuit_args': {
         'dephase_var': 'dephase_var'
+    },
+    'user_kws': ['angle']
+}
+
+ISwapIncoherent = {
+    'name': 'ISwapIncoherent',
+    'function': quantumsim.circuit.ISwapIncoherent,
+    'num_qubits': 2,
+    'builder_args': {
+        'gate_time': 'ISwap_gate_time'
+    },
+    'circuit_args':
+    {
+        'gap': 'gap',
+        'width': 'width',
+        'duration': 'interaction_time',
+        'E01': 'E01',
+        'E10': 'E10',
+        'mode': 'mode'
     },
     'user_kws': ['angle']
 }

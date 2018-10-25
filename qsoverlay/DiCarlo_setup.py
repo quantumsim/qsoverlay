@@ -7,9 +7,10 @@ import numpy as np
 from numpy import pi
 from quantumsim.circuit import uniform_noisy_sampler, uniform_sampler
 from .setup_functions import make_1q2q_gateset
-from .gate_templates import CZ, CPhase, RotateX, RotateY, RotateZ, Measure,\
-                   ISwapRotation, ISwapNoisy, ResetGate, Had, CNOT, XGate,\
-                   YGate, ZGate, CRX, PrepGate
+from .gate_templates import (CZ, CPhase, RotateX, RotateY, RotateZ, Measure,
+                             ISwapRotation, ISwapNoisy, ISwapIncoherent,
+                             ResetGate, Had, CNOT, XGate, YGate, ZGate,
+                             CRX, PrepGate)
 from .update_functions import update_quasistatic_flux
 from .experiment_setup import Setup
 
@@ -18,7 +19,7 @@ def quick_setup(qubit_list,
                 connectivity_dic=None,
                 seed=None,
                 **kwargs):
-    '''
+    """
     Quick setup: a function to return a setup that may be immediately
     used to make a qsoverlay builder.
 
@@ -106,8 +107,7 @@ def quick_setup(qubit_list,
                 above is None
                 (epsilon_{RO}^0=epsilon_{RO}^1 in
                  arXiv:1703.04136, App.B.6 Fig.9)
-    '''
-
+    """
     if seed is not None:
         state = np.random.RandomState(seed)
         kwargs['state'] = state
@@ -177,13 +177,13 @@ def asymmetric_setup(qubit_parameters={},
 
 
 def get_gate_dic():
-    '''
-    Returns the set of gates allowed on DiCarlo qubits.
+    """
+    Return the set of gates allowed on DiCarlo qubits.
+
     Measurement time is something that's still being optimized,
     so this might change.
     (msmt_time = the total time taken for measurement + depletion)
-    '''
-
+    """
     # Initialise gate set with all allowed gates
     gate_dic = {
         'CZ': CZ,
@@ -201,6 +201,7 @@ def get_gate_dic():
         'Measure': Measure,
         'ISwapRotation': ISwapRotation,
         'ISwapNoisy': ISwapNoisy,
+        'ISwapIncoherent': ISwapIncoherent,
         'prepz': PrepGate,
         'PrepGate': PrepGate,
         'ResetGate': ResetGate,
@@ -226,6 +227,11 @@ def get_qubit(noise_flag=True,
               t1_bit1=None,
               t2_bit1=None,
               interaction_time=0,
+              width=None,
+              gap=None,
+              E01=None,
+              E10=None,
+              mode='time',
               dephasing_axis=1e-4,
               dephasing_angle=5e-4,
               dephasing=5e-4,
@@ -240,7 +246,7 @@ def get_qubit(noise_flag=True,
               chi=1.3 * 1e-3,
               static_flux_std=None,
               high_frequency=False,
-              dephase_var=1e-2/(2*pi),
+              dephase_var=1e-2 / (2 * pi),
               msmt_time=600,
               interval_time=150,
               oneq_gate_time=20,
@@ -274,27 +280,33 @@ def get_qubit(noise_flag=True,
     if noise_flag is True:
 
         param_dic = {
-            't1': t1/scale,
-            't2': t2/scale,
+            't1': t1 / scale,
+            't2': t2 / scale,
             't1_bit0': t1_bit0,
             't2_bit0_dec': t2_bit0_dec,
             't1_bit1': t1_bit1,
             't2_bit1': t2_bit1,
             'interaction_time': interaction_time,
-            'dephasing_axis': dephasing_axis*scale,
-            'dephasing': dephasing*scale,
-            'dephasing_angle': dephasing_angle*scale,
-            'dephase_var': dephase_var*scale,
-            'p_exc_init': p_exc_init*scale,
-            'p_dec_init': p_dec_init*scale,
-            'p_exc_fin': p_exc_fin*scale,
-            'p_dec_fin': p_dec_fin*scale,
-            'residual_excitations': residual_excitations*scale,
+            'width': width,
+            'gap': gap,
+            'E01': E01,
+            'E10': E10,
+            'mode': mode,
+            'duration': interaction_time,
+            'dephasing_axis': dephasing_axis * scale,
+            'dephasing': dephasing * scale,
+            'dephasing_angle': dephasing_angle * scale,
+            'dephase_var': dephase_var * scale,
+            'p_exc_init': p_exc_init * scale,
+            'p_dec_init': p_dec_init * scale,
+            'p_exc_fin': p_exc_fin * scale,
+            'p_dec_fin': p_dec_fin * scale,
+            'residual_excitations': residual_excitations * scale,
             'msmt_time': msmt_time,
             'interval_time': interval_time,
             'oneq_gate_time': oneq_gate_time,
             'CZ_gate_time': CZ_gate_time,
-            'ISwap_gate_time': CZ_gate_time*np.sqrt(2),
+            'ISwap_gate_time': CZ_gate_time * np.sqrt(2),
             'reset_time': reset_time,
             'photons': photons,
             'alpha0': alpha0,
@@ -315,6 +327,12 @@ def get_qubit(noise_flag=True,
             't1_bit1': None,
             't2_bit1': None,
             'interaction_time': 0,
+            'width': 0,
+            'gap': 0,
+            'E01': E01,
+            'E10': E10,
+            'mode': mode,
+            'duration': 0,
             'dephasing_axis': 0,
             'dephasing': 0,
             'dephasing_angle': 0,
@@ -328,7 +346,7 @@ def get_qubit(noise_flag=True,
             'interval_time': interval_time,
             'oneq_gate_time': oneq_gate_time,
             'CZ_gate_time': CZ_gate_time,
-            'ISwap_gate_time': CZ_gate_time*np.sqrt(2),
+            'ISwap_gate_time': CZ_gate_time * np.sqrt(2),
             'reset_time': reset_time,
             'photons': False,
             'quasistatic_flux': None,
