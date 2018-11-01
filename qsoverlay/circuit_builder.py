@@ -226,10 +226,10 @@ class Builder:
         starting_time = max([
             self.times[gate_desc[j]]
             for gate_desc in gate_descriptions
-            for j in range(1, self.gate_dic[gate_desc[0]]['num_qubits']+1)])
+            for j in range(1, self.setup.gate_dic[gate_desc[0]]['num_qubits']+1)])
 
         for gate_desc in gate_descriptions:
-            num_qubits = self.gate_dic[gate_desc[0]]['num_qubits']
+            num_qubits = self.setup.gate_dic[gate_desc[0]]['num_qubits']
             qubit_list = gate_desc[1:num_qubits + 1]
             for qubit in qubit_list:
                 self.times[qubit] = starting_time
@@ -361,7 +361,8 @@ class Builder:
         for rule in self.update_rules:
             update_function_dic[rule](self, **kwargs)
 
-    def finalize(self, topo_order=False, dtmax=0, dtmin=0, shrink=False):
+    def finalize(self, topo_order=False, tmin=None, tmax=None,
+            dtmax=0, dtmin=0, shrink=False):
         """
         Script to run to finalize gates. Currently adds waiting gates
         as required and sorts gates.
@@ -370,6 +371,12 @@ class Builder:
         --------
         topo_order : bool
             whether to toposort gates or simply order them by time.
+        tmin : float or dict of floats
+            earliest time to add decay on qubits. If set, overrides
+            shrink.
+        tmax : float of dict of floats
+            latest time to add decay on qubits. If set, overrides
+            shrink.
         dtmax : float or dict of floats
             time to pad qubits by (i.e. dead time after the gates 
             in the circuit are executed). If float, applies same
@@ -384,6 +391,7 @@ class Builder:
 
         if self.setup.system_params['uses_waiting_gates'] is True:
             self.add_waiting_gates(
+                tmin=tmin, tmax=tmax,
                 dtmin=dtmin, dtmax=dtmax, shrink=shrink)
 
         if topo_order is True:
@@ -392,7 +400,8 @@ class Builder:
             self.circuit.gates = sorted(self.circuit.gates,
                                         key=lambda x: x.time)
 
-    def add_waiting_gates(self, dtmin=0, dtmax=0, shrink=False):
+    def add_waiting_gates(self, tmin=None, tmax=None,
+            dtmin=0, dtmax=0, shrink=False):
         """
         Function to add waiting gates to system
 
@@ -409,13 +418,17 @@ class Builder:
         shrink : bool
             whether to shrink resting gates around qubits. When
         """
-        if shrink:
-            tmin = self.tmins
-            tmax = self.times
-        else:
-            circuit_time = max(self.times.values())
-            tmax = {key: circuit_time for key in self.times.keys()}
-            tmin = {key: 0 for key in self.times.keys()}
+        if tmin is None:
+            if shrink:
+                tmin = self.tmins
+            else:
+                tmin = {key: 0 for key in self.times.keys()}
+        if tmax is None:
+            if shrink:
+                tmax = self.times
+            else:
+                circuit_time = max(self.times.values())
+                tmax = {key: circuit_time for key in self.times.keys()}
 
         if type(dtmax) == dict:
             for key,val in dtmax.items():
