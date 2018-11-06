@@ -361,16 +361,17 @@ class Builder:
         for rule in self.update_rules:
             update_function_dic[rule](self, **kwargs)
 
-    def finalize(self, topo_order=False, tmin=None, tmax=None,
-            dtmax=0, dtmin=0, shrink=False):
+    def finalize(self, toposort=False, tmin=None, tmax=None,
+                 dtmax=0, dtmin=0, shrink=False):
         """
         Script to run to finalize gates. Currently adds waiting gates
         as required and sorts gates.
 
         Args:
         --------
-        topo_order : bool
+        toposort : bool or "simple"
             whether to toposort gates or simply order them by time.
+            Setting toposort="simple" uses the simple toposort algorithm.
         tmin : float or dict of floats
             earliest time to add decay on qubits. If set, overrides
             shrink.
@@ -394,11 +395,7 @@ class Builder:
                 tmin=tmin, tmax=tmax,
                 dtmin=dtmin, dtmax=dtmax, shrink=shrink)
 
-        if topo_order is True:
-            self.circuit.order()
-        else:
-            self.circuit.gates = sorted(self.circuit.gates,
-                                        key=lambda x: x.time)
+        self.circuit.order(toposort)
 
     def add_waiting_gates(self, tmin=None, tmax=None,
             dtmin=0, dtmax=0, shrink=False):
