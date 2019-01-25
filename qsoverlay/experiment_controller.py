@@ -287,8 +287,11 @@ class Controller:
                         raise ValueError('My bernoulli random variable is weird: {}'.format(bernoulli_rv))
 
                 results.append(1-2*noisy_result)
+                self.dens_mat = dm
+
             else:
                 results.append(result)
+                self.dens_mat = dm
 
         return np.array(results)
 
