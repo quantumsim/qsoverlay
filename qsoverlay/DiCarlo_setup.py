@@ -191,7 +191,12 @@ def asymmetric_setup(qubit_parameters=None,
         qubit_dic=asym_setup['qubit_dic'],
         gate_dic=asym_setup['gate_dic'],
         connectivity_dic=connectivity_dic)
-    return Setup(**asym_setup)
+
+    system_params = {
+        'uses_waiting_gates': True
+    }
+
+    return Setup(**asym_setup, system_params=system_params)
 
 
 def get_gate_dic():
