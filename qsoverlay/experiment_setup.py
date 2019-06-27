@@ -33,7 +33,10 @@ class Setup:
 
         self.update_rules = setup_load_format['update_rules']
         self.qubit_dic = setup_load_format['qubit_dic']
-        self.system_params = setup_load_format['system_params']
+        try:
+            self.system_params = setup_load_format['system_params']
+        except:
+            self.system_params = {}
 
         # Currently assumes each qubit uses the same
         # uniform_noisy_sampler - this needs fixing

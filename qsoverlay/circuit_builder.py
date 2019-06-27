@@ -390,10 +390,11 @@ class Builder:
             whether to shrink resting gates around qubits. When
         """
 
-        if self.setup.system_params['uses_waiting_gates'] is True:
-            self.add_waiting_gates(
-                tmin=tmin, tmax=tmax,
-                dtmin=dtmin, dtmax=dtmax, shrink=shrink)
+        if ('uses_waiting_gates' in self.setup.system_params and 
+            self.setup.system_params['uses_waiting_gates'] is True):
+                self.add_waiting_gates(
+                    tmin=tmin, tmax=tmax,
+                    dtmin=dtmin, dtmax=dtmax, shrink=shrink)
 
         self.circuit.order(toposort)
 
