@@ -40,6 +40,18 @@ Measure = make_gate(gts_nl.Measurement, 1, 'dummy_time',
                     circuit_args={'sampler': 'sampler'},
                     name='Measure')
 
+XGate = make_gate(gts.XGate, 1, 'dummy_time',
+                  circuit_args=circuit_args,
+                  name='X')
+
+YGate = make_gate(gts.YGate, 1, 'dummy_time',
+                  circuit_args=circuit_args,
+                  name='Y')
+
+ZGate = make_gate(gts.ZGate, 1, 'dummy_time',
+                  circuit_args=circuit_args,
+                  name='Z')
+
 
 def quick_setup(qubit_list, depol_noise, readout_error=0, rng=None):
 
@@ -58,7 +70,10 @@ def quick_setup(qubit_list, depol_noise, readout_error=0, rng=None):
         'Measure': Measure,
         'ISwap': ISwap,
         'Had': Hadamard,
-        'H': Hadamard
+        'H': Hadamard,
+        'X': XGate,
+        'Y': YGate,
+        'Z': ZGate
     }
     if readout_error > 0:
         sampler = uniform_noisy_sampler(state=rng, readout_error=readout_error)
