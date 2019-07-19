@@ -1,4 +1,5 @@
 from qsoverlay.circuit_builder import Builder
+from qsoverlay.experiment_setup import Setup
 from qsoverlay.DiCarlo_setup import quick_setup
 from quantumsim.sparsedm import SparseDM
 import pytest
@@ -12,13 +13,14 @@ class TestBuilder:
         qubit_dic = {'q_test': {}}
         gate_dic = {}
         gate_set = {}
-        b = Builder(qubit_dic=qubit_dic,
-                    gate_dic=gate_dic,
-                    gate_set=gate_set,
+        setup = Setup(qubit_dic=qubit_dic,
+                      gate_dic=gate_dic,
+                      gate_set=gate_set)
+        b = Builder(setup=setup,
                     circuit_title='Test')
-        assert len(b.qubit_dic.keys()) == 1
-        assert b.gate_dic == {}
-        assert b.gate_set == {}
+        assert len(b.setup.qubit_dic.keys()) == 1
+        assert b.setup.gate_dic == {}
+        assert b.setup.gate_set == {}
         assert len(b.times.keys()) == 1
         assert b.circuit.title == 'Test'
         assert len(b.circuit.qubits) == 1
@@ -31,9 +33,10 @@ class TestBuilder:
         qubit_dic = {'q_test': {'t1': 10, 't2': 20}}
         gate_dic = {}
         gate_set = {}
-        b = Builder(qubit_dic=qubit_dic,
-                    gate_dic=gate_dic,
-                    gate_set=gate_set,
+        setup = Setup(qubit_dic=qubit_dic,
+                      gate_dic=gate_dic,
+                      gate_set=gate_set)
+        b = Builder(setup=setup,
                     circuit_title='Test')
         assert b.circuit.qubits[0].t1 == 10
         assert b.circuit.qubits[0].t2 == 20
@@ -42,9 +45,10 @@ class TestBuilder:
         qubit_dic = {'q_test': {}}
         gate_dic = {}
         gate_set = {}
-        b = Builder(qubit_dic=qubit_dic,
-                    gate_dic=gate_dic,
-                    gate_set=gate_set,
+        setup = Setup(qubit_dic=qubit_dic,
+                      gate_dic=gate_dic,
+                      gate_set=gate_set)
+        b = Builder(setup=setup,
                     circuit_title='Test',
                     t1=20,
                     t2=30)
@@ -141,6 +145,38 @@ class TestBuilder:
         assert np.abs(diag[1]) < 3e-2
         assert np.abs(diag[2]) < 3e-2
 
+    def test_shrink(self):
+        qubit_list = ['q0','q1']
+        with pytest.warns(UserWarning):
+            setup = quick_setup(qubit_list)
+        sq_gate_time = setup.qubit_dic['q0']['oneq_gate_time']
+        cp_gate_time = setup.qubit_dic['q0']['CZ_gate_time']
+        b = Builder(setup)
+        b.add_gate('RotateY', ['q0'], angle=np.pi/2)
+        b.add_gate('CZ', ['q0', 'q1'])
+        b.add_gate('RotateY', ['q1'], angle=-np.pi/2)
+        b.finalize(shrink=True)
+        assert min([gate.time for gate in b.circuit.gates
+                    if 'q1' in gate.involved_qubits]) == sq_gate_time + cp_gate_time/4
+        assert max([gate.time for gate in b.circuit.gates
+                    if 'q0' in gate.involved_qubits]) == sq_gate_time + 3*cp_gate_time/4
+
+    def test_noshrink(self):
+        qubit_list = ['q0','q1']
+        with pytest.warns(UserWarning):
+            setup = quick_setup(qubit_list)
+        sq_gate_time = setup.qubit_dic['q0']['oneq_gate_time']
+        cp_gate_time = setup.qubit_dic['q0']['CZ_gate_time']
+        b = Builder(setup)
+        b.add_gate('RotateY', ['q0'], angle=np.pi/2)
+        b.add_gate('CZ', ['q0', 'q1'])
+        b.add_gate('RotateY', ['q1'], angle=-np.pi/2)
+        b.finalize(shrink=False)
+        assert min([gate.time for gate in b.circuit.gates
+                    if 'q1' in gate.involved_qubits]) == sq_gate_time/2 + cp_gate_time/4
+        assert max([gate.time for gate in b.circuit.gates
+                    if 'q0' in gate.involved_qubits]) == sq_gate_time*3/2 + cp_gate_time*3/4
+        
     def test_simultaneous_gates(self):
         qubit_list = ['q0', 'q1']
         with pytest.warns(UserWarning):
