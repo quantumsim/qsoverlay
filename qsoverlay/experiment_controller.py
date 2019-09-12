@@ -163,7 +163,9 @@ class Controller:
                     angles = circuit[1:]
                 for gate, param in zip(
                         self.adjust_gates[op_name], angles):
-                    gate.adjust(param)
+                    if not isinstance(param, tuple):
+                        param = (param,)
+                    gate.adjust(*param)
                 self.circuits[op_name].apply_to(self.state,
                                                 apply_all_pending=False)
 
