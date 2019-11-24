@@ -8,36 +8,36 @@ from numpy import pi
 
 
 def X_gate(builder, bit, time):
-    builder < ('RX', bit, -pi)
+    builder < ('RX', bit, -pi, time)
 
 
 def Y_gate(builder, bit, time):
-    builder < ('RY', bit, -pi)
+    builder < ('RY', bit, -pi, time)
 
 
 def Z_gate(builder, bit, time):
-    builder < ('RZ', bit, -pi)
+    builder < ('RZ', bit, -pi, time)
 
 
 def had_from_rot(builder, bit, time):
     """Creates a Hadamard gate from two rotations."""
-    builder < ('RX', bit, -pi)
-    builder < ('RY', bit, -pi / 2)
+    builder < ('RX', bit, -pi, time)
+    builder < ('RY', bit, -pi / 2, time)
 
 
 def CNOT_from_CZ(builder, bit0, bit1, time):
     """Creates a CNOT gate from a CZ gate"""
-    builder < ('RY', bit1, -pi / 2)
-    builder < ('CZ', bit0, bit1)
-    builder < ('RY', bit1, pi / 2)
+    builder < ('RY', bit1, -pi / 2, time)
+    builder < ('CZ', bit0, bit1, time)
+    builder < ('RY', bit1, pi / 2, time)
 
 
 def CRX_from_CZ(builder, bit0, bit1, angle, time):
     """Creates a CNOT gate from a CZ gate"""
-    builder < ('RY', bit1, -pi / 2)
-    builder < ('RZ', bit0, -angle / 2)
-    builder < ('CPhase', bit0, bit1, angle)
-    builder < ('RY', bit1, pi / 2)
+    builder < ('RY', bit1, -pi / 2, time)
+    builder < ('RZ', bit0, -angle / 2, time)
+    builder < ('CPhase', bit0, bit1, angle, time)
+    builder < ('RY', bit1, pi / 2, time)
 
 
 def insert_CZ(builder,
