@@ -15,7 +15,8 @@ class Setup:
             self, filename=None,
             seed=None, state=None,
             gate_dic=None, update_rules=None,
-            qubit_dic=None, gate_set=None):
+            qubit_dic=None, gate_set=None,
+            system_params=None):
 
         if filename is not None:
             self.load(filename, seed, state)
@@ -24,6 +25,7 @@ class Setup:
             self.update_rules = update_rules or []
             self.qubit_dic = qubit_dic or {}
             self.gate_set = gate_set or {}
+            self.system_params = system_params or {}
 
     def load(self, filename, seed=None, state=None):
         with open(filename, 'r') as infile:
@@ -31,6 +33,10 @@ class Setup:
 
         self.update_rules = setup_load_format['update_rules']
         self.qubit_dic = setup_load_format['qubit_dic']
+        try:
+            self.system_params = setup_load_format['system_params']
+        except:
+            self.system_params = {}
 
         # Currently assumes each qubit uses the same
         # uniform_noisy_sampler - this needs fixing
@@ -90,7 +96,8 @@ class Setup:
             'gate_dic': gate_dic_save_format,
             'update_rules': self.update_rules,
             'qubit_dic': qubit_dic_save_format,
-            'gate_set': gate_set_save_format
+            'gate_set': gate_set_save_format,
+            'system_params': system_params
         }
         with open(filename, 'w') as outfile:
             json.dump(setup_save_format, outfile)

@@ -14,45 +14,17 @@ from .update_functions import update_function_dic
 
 class Builder:
 
-    def __init__(self,
-                 setup=None,
-                 qubit_dic=None,
-                 gate_dic=None,
-                 gate_set=None,
-                 update_rules=None,
-                 **kwargs):
+    def __init__(self, setup, **kwargs):
         '''
-        qubit_dic: list of the qubits in the system.
-            Each qubit should have a set of parameters,
-            which is called whenever required by the gates.
-        gate_dic: a dictionary of allowed gates.
-            Each 'allowed gate' consists of:
-                - the function to be called
-                - a set of 'qubit_args' that will be found in
-                    the qubit dictionary and passed to the gate.
-                - a 'time' - the length of the gate
-            Note that 'Measure' should be in the gate_set
-        gate_set: a dictionary of allowed gate instances.
-            An allowed gate instance is a list of the gate
-            along with the qubits it is performed between.
-        update_rules: a set of rules for updating the system.
-            (i.e. between experiments).
+        Args:
+        -------
+        setup: an experiment_setup.Setup containing details of
+            the experiment.
 
         kwargs: Can add t1 and t2 via the kwargs instead of
             passing them with the qubit_dic.
         '''
-        if setup is not None:
-            self.qubit_dic = setup.qubit_dic
-            self.gate_dic = setup.gate_dic
-            self.gate_set = setup.gate_set
-            self.update_rules = setup.update_rules
-        else:
-            self.qubit_dic = qubit_dic or {}
-            self.gate_dic = gate_dic or {}
-            self.gate_set = gate_set or {}
-            self.update_rules = update_rules or []
-
-        self.save_flag = True
+        self.setup = setup
         self.new_circuit(**kwargs)
 
     def new_circuit(self, circuit_title='New Circuit', **kwargs):
@@ -68,9 +40,14 @@ class Builder:
 
         # Times stores the current time of every qubit (beginning at 0)
         self.times = {}
+        self.tmins = {}
+
+        # save_flag is used to keep track of which gates have been
+        # saved during a circuit, and needs to be reset here.
+        self.save_flag = True
 
         # Make qubits
-        for qubit, qubit_args in sorted(self.qubit_dic.items()):
+        for qubit, qubit_args in sorted(self.setup.qubit_dic.items()):
 
             if 'classical' in qubit_args.keys() and\
                     qubit_args['classical'] is True:
@@ -93,6 +70,7 @@ class Builder:
 
             # Initialise the time of the latest gate on each qubit to 0
             self.times[qubit] = 0
+            self.tmins[qubit] = None
 
     def make_reverse_circuit(self, title='reversed',
                              finalize=True):
@@ -109,8 +87,8 @@ class Builder:
         for n, gate_desc in enumerate(reversed_circuit_list):
             gate_name = gate_desc[0]
 
-            num_qubits = self.gate_dic[gate_name]['num_qubits']
-            user_kws = self.gate_dic[gate_name]['user_kws']
+            num_qubits = self.setup.gate_dic[gate_name]['num_qubits']
+            user_kws = self.setup.gate_dic[gate_name]['user_kws']
 
             if 'angle' in user_kws:
                 gate_desc = list(gate_desc)
@@ -118,10 +96,7 @@ class Builder:
                 gate_desc[num_qubits + 1 + angle_index] *= -1
                 reversed_circuit_list[n] = tuple(gate_desc)
 
-        reversed_circuit_builder = Builder(qubit_dic=self.qubit_dic,
-                                           gate_dic=self.gate_dic,
-                                           gate_set=self.gate_set,
-                                           update_rules=self.update_rules)
+        reversed_circuit_builder = Builder(setup=self.setup)
         reversed_circuit_builder.add_circuit_list(reversed_circuit_list)
         if finalize:
             reversed_circuit_builder.finalize()
@@ -151,8 +126,8 @@ class Builder:
             # Get the gate name
             gate_name = line[:spaces[0]]
 
-            num_qubits = self.gate_dic[gate_name]['num_qubits']
-            user_kws = self.gate_dic[gate_name]['user_kws']
+            num_qubits = self.setup.gate_dic[gate_name]['num_qubits']
+            user_kws = self.setup.gate_dic[gate_name]['user_kws']
 
             if gate_name == 'measure':
                 # line looks like 'measure q -> c;'
@@ -226,8 +201,8 @@ class Builder:
 
         gate_name = gate_desc[0]
 
-        num_qubits = self.gate_dic[gate_name]['num_qubits']
-        user_kws = self.gate_dic[gate_name]['user_kws']
+        num_qubits = self.setup.gate_dic[gate_name]['num_qubits']
+        user_kws = self.setup.gate_dic[gate_name]['user_kws']
 
         if len(gate_desc) == len(user_kws) + num_qubits + 2:
             return_flag = gate_desc[-1]
@@ -251,10 +226,10 @@ class Builder:
         starting_time = max([
             self.times[gate_desc[j]]
             for gate_desc in gate_descriptions
-            for j in range(1, self.gate_dic[gate_desc[0]]['num_qubits']+1)])
+            for j in range(1, self.setup.gate_dic[gate_desc[0]]['num_qubits']+1)])
 
         for gate_desc in gate_descriptions:
-            num_qubits = self.gate_dic[gate_desc[0]]['num_qubits']
+            num_qubits = self.setup.gate_dic[gate_desc[0]]['num_qubits']
             qubit_list = gate_desc[1:num_qubits + 1]
             for qubit in qubit_list:
                 self.times[qubit] = starting_time
@@ -285,7 +260,7 @@ class Builder:
         # the same for every qubit/pair of qubits).
         gate_tuple = (gate_name, *qubit_list)
 
-        circuit_args, builder_args = self.gate_set[gate_tuple]
+        circuit_args, builder_args = self.setup.gate_set[gate_tuple]
 
         # kwargs is the list of arguments that gets passed to the gate
         # itself. We initiate with the set of additional arguments passed
@@ -327,7 +302,7 @@ class Builder:
         # data.
         if self.save_flag:
             user_data = [kwargs[kw]
-                         for kw in self.gate_dic[gate_name]['user_kws']]
+                         for kw in self.setup.gate_dic[gate_name]['user_kws']]
             if return_flag is not False:
                 self.circuit_list.append((gate_name, *qubit_list,
                                           *user_data, return_flag))
@@ -336,7 +311,7 @@ class Builder:
                                           *user_data))
 
         # Get the gate to add to quantumsim.
-        gate = self.gate_dic[gate_name]['function']
+        gate = self.setup.gate_dic[gate_name]['function']
 
         # The save flag prevents saving multiple gate
         # definitions when using recursive gates (i.e.
@@ -372,6 +347,11 @@ class Builder:
             for qubit in qubit_list:
                 self.times[qubit] = max(self.times[qubit], time + gate_time)
 
+            # If this qubit has not been used before, store the start
+            # of this gate as the first time it is activated.
+            if self.tmins[qubit] is None:
+                self.tmins[qubit] = time
+
         # My current best idea for adjustable gates - return the
         # gate that could be adjusted to the user.
         if return_flag is not False:
@@ -381,22 +361,86 @@ class Builder:
         for rule in self.update_rules:
             update_function_dic[rule](self, **kwargs)
 
-    def finalize(self, topo_order=False, t_add=0):
+    def finalize(self, toposort=False, tmin=None, tmax=None,
+                 dtmax=0, dtmin=0, shrink=False):
         """
-        Adds resting gates to all systems as required.
-        quantumsim currently assumes fixed values for photon
-        numbers, so we take them from a random qubit
+        Script to run to finalize gates. Currently adds waiting gates
+        as required and sorts gates.
 
-        Photons in quantumsim are currently broken, so
-        they're not in here right now.
+        Args:
+        --------
+        toposort : bool or "simple"
+            whether to toposort gates or simply order them by time.
+            Setting toposort="simple" uses the simple toposort algorithm.
+        tmin : float or dict of floats
+            earliest time to add decay on qubits. If set, overrides
+            shrink.
+        tmax : float of dict of floats
+            latest time to add decay on qubits. If set, overrides
+            shrink.
+        dtmax : float or dict of floats
+            time to pad qubits by (i.e. dead time after the gates 
+            in the circuit are executed). If float, applies same
+            padding to all qubits.
+        dtmin : float or dict of floats
+            time to pad qubits by on the left (i.e. dead time before
+            any gates are executed). If float, applies same padding
+            to all qubits.
+        shrink : bool
+            whether to shrink resting gates around qubits. When
         """
 
-        circuit_time = max(self.times.values())
-        if type(t_add) == dict:
-            circuit_time = {key: val + circuit_time
-                            for key, val in t_add.items()}
+        if ('uses_waiting_gates' in self.setup.system_params and 
+            self.setup.system_params['uses_waiting_gates'] is True):
+                self.add_waiting_gates(
+                    tmin=tmin, tmax=tmax,
+                    dtmin=dtmin, dtmax=dtmax, shrink=shrink)
+
+        self.circuit.order(toposort)
+
+    def add_waiting_gates(self, tmin=None, tmax=None,
+            dtmin=0, dtmax=0, shrink=False):
+        """
+        Function to add waiting gates to system
+
+        Args:
+        --------
+        dtmax : float or dict of floats
+            time to pad qubits by (i.e. dead time after the gates 
+            in the circuit are executed). If float, applies same
+            padding to all qubits.
+        dtmin : float or dict of floats
+            time to pad qubits by on the left (i.e. dead time before
+            any gates are executed). If float, applies same padding
+            to all qubits.
+        shrink : bool
+            whether to shrink resting gates around qubits. When
+        """
+        if tmin is None:
+            if shrink:
+                tmin = self.tmins
+            else:
+                tmin = {key: 0 for key in self.times.keys()}
+        if tmax is None:
+            if shrink:
+                tmax = self.times
+            else:
+                circuit_time = max(self.times.values())
+                tmax = {key: circuit_time for key in self.times.keys()}
+
+        if type(dtmax) == dict:
+            for key,val in dtmax.items():
+                tmax[key] += val
         else:
-            circuit_time += t_add
+            for key in tmax.keys():
+                tmax[key] += dtmax
+
+        if type(dtmin) == dict:
+            for key,val in dtmin.items():
+                tmin[key] -= val
+        else:
+            for key in tmin.keys():
+                tmin[key] -= dtmin
 
         # args = list(self.qubit_dic.values())[0]
 
@@ -408,9 +452,4 @@ class Builder:
         #         chi=args['chi'])
         # else:
 
-        self.circuit.add_waiting_gates(tmin=0, tmax=circuit_time)
-        if topo_order is True:
-            self.circuit.order()
-        else:
-            self.circuit.gates = sorted(self.circuit.gates,
-                                        key=lambda x: x.time)
+        self.circuit.add_waiting_gates(tmin=tmin, tmax=tmax)
