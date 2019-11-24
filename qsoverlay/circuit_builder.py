@@ -228,9 +228,19 @@ class Builder:
 
         num_qubits = self.gate_dic[gate_name]['num_qubits']
         user_kws = self.gate_dic[gate_name]['user_kws']
+        time = None
 
         if len(gate_desc) == len(user_kws) + num_qubits + 2:
+            if type(gate_desc[-1]) is bool:
+                return_flag = gate_desc[-1]
+            else:
+                return_flag = False
+                time = gate_desc[-1]
+        elif len(gate_desc) == len(user_kws) + num_qubits + 3:
+            assert gate_desc[-1] == bool
+            assert gate_desc[-2] == float or gate_desc[-2] == int
             return_flag = gate_desc[-1]
+            time = gate_desc[-2]
         else:
             assert len(gate_desc) == len(user_kws) + num_qubits + 1
             return_flag = False
@@ -239,6 +249,8 @@ class Builder:
 
         kwargs = {kw: arg for kw, arg in
                   zip(user_kws, gate_desc[num_qubits+1:])}
+        if time:
+            kwargs['time'] = time
 
         return self.add_gate(gate_name, qubit_list,
                              return_flag=return_flag, **kwargs)
