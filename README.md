@@ -1,3 +1,10 @@
+NOTE: 
+Always specify gate time, ex `b.gate('X', ['1'], time = 10)`, where the `b` is a builder instance, and the time is the middle temporal of the gate's execution.
+Plus, always correct the builder class timing at the end:
+```
+b.times = {'1': 20}
+```
+
 Installation
 ------------
 
